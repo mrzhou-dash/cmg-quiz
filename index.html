@@ -1291,14 +1291,16 @@ function resetAll() {
 
 document.getElementById('wrongBookModal').addEventListener('click',function(e){if(e.target===this)closeWrongBook();});
 
-// 移动端滑动手势
+// 移动端滑动手势（仅水平滑动有效，上下滑不切题）
 (function(){
-  var tx=0;
-  document.addEventListener('touchstart',function(e){tx=e.changedTouches[0].screenX;},{passive:true});
+  var tx=0, ty=0;
+  document.addEventListener('touchstart',function(e){tx=e.changedTouches[0].screenX;ty=e.changedTouches[0].screenY;},{passive:true});
   document.addEventListener('touchend',function(e){
     var ac=document.querySelector('.question-card.active'); if(!ac||e.target.closest('.option')||e.target.closest('.del-btn')||e.target.closest('.btn'))return;
-    var d=tx-e.changedTouches[0].screenX;
-    if(Math.abs(d)>60){ if(d>0&&state.currentIndex<state.questions.length-1) nextQuestion(); else if(d<0&&state.currentIndex>0) prevQuestion(); }
+    var dx=tx-e.changedTouches[0].screenX;
+    var dy=ty-e.changedTouches[0].screenY;
+    // 只有水平滑动距离大于垂直距离且绝对值>60px时才触发（排除上下滑动）
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>60){ if(dx>0&&state.currentIndex<state.questions.length-1) nextQuestion(); else if(dx<0&&state.currentIndex>0) prevQuestion(); }
   },{passive:true});
 })();
 
