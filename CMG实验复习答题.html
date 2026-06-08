@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>CMG实验复习答题</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #333; }
+  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 28px; color: #1a3c6e; }
+  header p { color: #666; margin-top: 8px; font-size: 15px; }
+
+  /* 实验选择标签 */
+  .exp-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
+  .exp-tab { padding: 8px 14px; border-radius: 20px; border: 2px solid #d0d5dd; background: #fff; cursor: pointer; font-size: 13px; transition: all .2s; color: #555; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+  .exp-tab:hover { border-color: #1a3c6e; color: #1a3c6e; }
+  .exp-tab:active { transform: scale(0.96); }
+  .exp-tab.active { background: #1a3c6e; color: #fff; border-color: #1a3c6e; }
+  .exp-tab .q-count { font-size: 11px; opacity: .8; }
+
+  /* 统计栏 */
+  .stats-bar { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin: 15px 0 20px; font-size: 14px; }
+  .stat-item { background: #fff; padding: 10px 20px; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .stat-item span { font-weight: 700; color: #1a3c6e; }
+
+  /* 错题本 & 错题重做 按钮 */
+  .action-btns { display: flex; gap: 12px; justify-content: center; margin: 10px 0 20px; flex-wrap: wrap; }
+  .btn { padding: 10px 24px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; touch-action: manipulation; }
+  .btn-primary { background: #1a3c6e; color: #fff; }
+  .btn-primary:hover { background: #2a4c7e; transform: translateY(-1px); }
+  .btn-danger { background: #e74c3c; color: #fff; }
+  .btn-danger:hover { background: #c0392b; }
+  .btn-success { background: #27ae60; color: #fff; }
+  .btn-success:hover { background: #219a52; }
+  .btn-outline { background: #fff; color: #1a3c6e; border: 2px solid #1a3c6e; }
+  .btn-outline:hover { background: #eef3fa; }
+  .btn-warning { background: #f39c12; color: #fff; }
+  .btn-warning:hover { background: #e08e0b; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .del-btn:hover { background: #e74c3c !important; color: #fff !important; }
+  .del-btn:active { transform: scale(0.95); }
+
+  /* ===== 思维导图 ===== */
+  .mindmap-wrap {
+    background: linear-gradient(135deg, #f8fbff 0%, #eef4fb 100%);
+    border-radius: 18px;
+    padding: 22px 24px 18px;
+    box-shadow: 0 4px 20px rgba(26,60,110,.08);
+    border: 1px solid #dce4ed;
+    position: relative;
+    overflow: hidden;
+  }
+  .mindmap-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1a3c6e, #4a7cb5, #6ab0e6);
+  }
+  .mindmap-wrap .mm-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+  }
+  .mindmap-wrap .mm-header h3 {
+    font-size: 17px; color: #1a3c6e;
+    background: rgba(26,60,110,.06);
+    padding: 4px 16px 4px 12px;
+    border-radius: 20px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .mindmap-toggle {
+    font-size: 12px; color: #fff; background: #1a3c6e;
+    border: none; padding: 6px 16px; border-radius: 20px;
+    cursor: pointer; transition: all .25s;
+    font-weight: 500; letter-spacing: .3px;
+  }
+  .mindmap-toggle:hover { background: #2a5078; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(26,60,110,.25); }
+  .mindmap-tree { display: none; }
+  .mindmap-tree.open { display: block; animation: mindmapFadeIn .35s ease; }
+  @keyframes mindmapFadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .tree-root { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .tree-root > li {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    border: 1px solid #e4eaf1;
+    transition: all .2s;
+  }
+  .tree-root > li:hover { box-shadow: 0 4px 16px rgba(26,60,110,.10); border-color: #c8d6e5; transform: translateY(-1px); }
+  .tree-root > li > .node-label {
+    font-weight: 700; color: #fff; padding: 7px 14px; border-radius: 10px; display: block;
+    font-size: 14px; margin-bottom: 8px; letter-spacing: .3px;
+    background: linear-gradient(135deg, #1a3c6e, #2e5a8a);
+    box-shadow: 0 2px 6px rgba(26,60,110,.15);
+  }
+  .tree-root > li > .node-label::before { content: '✦ '; }
+  .tree-children { margin: 0; padding: 0; list-style: none; }
+  .tree-children > li {
+    position: relative; padding: 5px 10px 5px 24px; font-size: 13px; color: #3d4a5c;
+    line-height: 1.55; border-left: 3px solid #d0ddef; margin: 3px 0;
+    border-radius: 0 6px 6px 0; transition: all .15s;
+  }
+  .tree-children > li:hover { background: #f5f9ff; border-left-color: #4a7cb5; }
+  .tree-children > li::before {
+    content: '●';
+    position: absolute; left: -7px; top: 7px;
+    font-size: 8px; color: #4a7cb5;
+  }
+  .tree-children > li .hl { color: #e74c3c; font-weight: 600; }
+  .tree-root > li:nth-child(6n+2) > .node-label { background: linear-gradient(135deg, #2c6e49, #3d8b5e); }
+  .tree-root > li:nth-child(6n+3) > .node-label { background: linear-gradient(135deg, #a5551e, #c97d3a); }
+  .tree-root > li:nth-child(6n+4) > .node-label { background: linear-gradient(135deg, #7b2d8b, #9b4eab); }
+  .tree-root > li:nth-child(6n+5) > .node-label { background: linear-gradient(135deg, #b83b3b, #d96060); }
+  .tree-root > li:nth-child(6n+6) > .node-label { background: linear-gradient(135deg, #1d7a7a, #2a9d8f); }
+  .tree-root > li:nth-child(6n+7) > .node-label { background: linear-gradient(135deg, #3a5a8c, #5a7aac); }
+
+  /* ===== 题卡：一次只显示一题 ===== */
+  .question-card { background: #fff; border-radius: 16px; padding: 28px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.06); border: 1px solid #e8ecf0; display: none !important; }
+  .question-card.active { display: block !important; }
+  .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .q-number { font-size: 14px; font-weight: 600; color: #1a3c6e; background: #eef3fa; padding: 3px 12px; border-radius: 12px; }
+  .q-exp-label { font-size: 12px; color: #888; background: #f5f5f5; padding: 3px 10px; border-radius: 10px; }
+  .q-text { font-size: 17px; line-height: 1.7; margin-bottom: 18px; font-weight: 500; }
+  .q-text .highlight { color: #e74c3c; }
+
+  /* 选项 */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { padding: 14px 18px; border-radius: 12px; border: 2px solid #e8ecf0; cursor: pointer; transition: all .15s; font-size: 15px; line-height: 1.5; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+  .option:hover { border-color: #1a3c6e; background: #f8faff; }
+  .option:active { transform: scale(0.99); }
+  .option.selected { border-color: #1a3c6e; background: #eef3fa; }
+  .option.correct { border-color: #27ae60; background: #eafaf1; }
+  .option.wrong { border-color: #e74c3c; background: #fdedec; }
+  .option.disabled { pointer-events: none; }
+
+  /* 反馈：始终占位，不抖动 */
+
+  /* 底部导航 */
+  .nav-btns { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; }
+  .nav-btns .btn { min-width: 100px; }
+
+  /* 错题本模态 */
+  .modal-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,.4); z-index: 1000; justify-content: center; align-items: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 16px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,.2); position: relative; }
+  .modal h2 { font-size: 22px; margin-bottom: 16px; }
+  .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 28px; cursor: pointer; color: #999; padding: 8px; line-height: 1; touch-action: manipulation; }
+  .modal-close:hover { color: #333; }
+  .wrong-item { padding: 14px 0; border-bottom: 1px solid #eee; }
+  .wrong-item:last-child { border: none; }
+  .wrong-item .wi-q { font-weight: 500; margin-bottom: 4px; }
+  .wrong-item .wi-detail { font-size: 13px; color: #888; }
+  .wrong-item .wi-detail .correct-ans { color: #27ae60; font-weight: 600; }
+  .wrong-item .wi-detail .your-ans { color: #e74c3c; font-weight: 600; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: #999; }
+  .empty-state .icon { font-size: 48px; margin-bottom: 10px; }
+
+  /* 模式切换提示 */
+  .mode-badge { text-align: center; margin: 10px 0; }
+  .mode-badge span { display: inline-block; padding: 6px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+  .mode-badge .normal-mode { background: #eef3fa; color: #1a3c6e; }
+  .mode-badge .wrong-mode { background: #fdedec; color: #e74c3c; }
+
+  /* 进度条 */
+  .progress-bar-wrap { background: #e8ecf0; height: 6px; border-radius: 3px; margin: 10px 0 15px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #1a3c6e, #4a7cb5); border-radius: 3px; transition: width .3s; }
+
+  /* 完成页面 */
+  .complete-page { text-align: center; padding: 60px 20px; display: none; }
+  .complete-page.show { display: block; }
+  .complete-page .big-icon { font-size: 72px; margin-bottom: 20px; }
+  .complete-page h2 { font-size: 28px; margin-bottom: 10px; color: #1a3c6e; }
+  .complete-page .score { font-size: 48px; font-weight: 800; color: #1a3c6e; margin: 20px 0; }
+  .complete-page .detail { font-size: 16px; color: #666; line-height: 1.8; }
+
+  /* 解析反馈：美观卡片设计 */
+  .feedback { margin-top: 14px; padding: 0; border-radius: 12px; min-height: 48px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  .feedback-inner { padding: 14px 16px; border-left: 4px solid #d0d5dd; background: #f8f9fb; }
+  .feedback .fb-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .feedback .fb-title .fb-icon { font-size: 18px; }
+  .feedback .fb-explain { font-size: 14px; line-height: 1.7; color: #3d4a5c; margin-top: 4px; padding-left: 2px; }
+  .feedback .fb-correct { border-left-color: #27ae60; background: #f0faf4; }
+  .feedback .fb-correct .fb-title { color: #1a7a3a; }
+  .feedback .fb-wrong { border-left-color: #e74c3c; background: #fdf0ef; }
+  .feedback .fb-wrong .fb-title { color: #c0392b; }
+  .feedback .fb-placeholder { border-left-color: #d0d5dd; background: #f8f9fb; }
+  .feedback .fb-placeholder .fb-title { color: #aaa; font-weight: 400; font-size: 13px; }
+  .feedback .fb-retip { font-size: 11px; color: #aaa; margin-top: 6px; text-align: right; border-top: 1px dashed #e0e0e0; padding-top: 4px; }
+
+  /* ===== 移动端 (放在最后确保覆盖) ===== */
+  @media (max-width: 768px) {
+    .container { padding: 8px; }
+    header { padding: 14px 0 8px; }
+    header h1 { font-size: 18px; }
+    header p { display: none; }
+    .exp-tabs { gap: 5px; margin: 10px 0; }
+    .exp-tab { font-size: 11px; padding: 5px 10px; border-radius: 14px; border-width: 1.5px; }
+    .mode-badge { margin: 6px 0; }
+    .mode-badge span { font-size: 11px; padding: 3px 12px; }
+    .stats-bar { gap: 4px; margin: 8px 0 10px; }
+    .stat-item { padding: 4px 10px; font-size: 11px; border-radius: 8px; }
+    .action-btns { gap: 6px; margin: 6px 0 12px; }
+    .btn { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
+    .progress-bar-wrap { height: 4px; margin: 4px 0 8px; }
+
+    .question-card { padding: 14px 12px; border-radius: 12px; margin-bottom: 10px; }
+    .q-header { margin-bottom: 10px; }
+    .q-number { font-size: 10px; padding: 2px 8px; }
+    .q-exp-label { font-size: 10px; padding: 2px 8px; }
+    .q-text { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+    .options { gap: 7px; }
+    .option { padding: 11px 13px; font-size: 14px; border-radius: 10px; border-width: 1.5px; min-height: 44px; display: flex; align-items: center; }
+    .feedback { margin-top: 10px; min-height: 40px; }
+    .feedback-inner { padding: 10px 12px; }
+    .feedback .fb-title { font-size: 13px; }
+    .feedback .fb-explain { font-size: 12px; }
+    .feedback .fb-retip { font-size: 10px; }
+
+    .nav-btns { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 8px 12px; margin: 0; border-top: 1px solid #e8ecf0; gap: 8px; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,.06); }
+    .nav-btns .btn { flex: 1; padding: 12px 10px; font-size: 15px; border-radius: 10px; min-height: 44px; }
+    body { padding-bottom: 75px; }
+
+    .modal { padding: 18px; width: 95%; max-height: 90vh; border-radius: 14px; }
+    .modal h2 { font-size: 17px; }
+    .modal-close { top: 8px; right: 10px; font-size: 24px; padding: 6px; }
+    .wrong-item .wi-q { font-size: 14px; }
+    .wrong-item .wi-detail { font-size: 12px; }
+    .complete-page { padding: 20px 10px; }
+    .complete-page .big-icon { font-size: 48px; }
+    .complete-page h2 { font-size: 22px; }
+    .complete-page .score { font-size: 36px; }
+    .complete-page .detail { font-size: 14px; }
+    .del-btn { font-size: 11px !important; padding: 3px 10px !important; }
+
+    .mindmap-tree.open { display: block; }
+    .mindmap-wrap { padding: 10px 12px; border-radius: 12px; }
+    .mindmap-wrap .mm-header h3 { font-size: 13px; padding: 3px 10px; }
+    .mindmap-toggle { font-size: 11px; padding: 5px 12px; }
+    .tree-root { grid-template-columns: 1fr; gap: 6px; }
+    .tree-root > li { padding: 8px 10px; }
+    .tree-root > li > .node-label { font-size: 12px; padding: 4px 10px; }
+    .tree-children > li { font-size: 11px; padding: 3px 6px 3px 16px; }
+
+    .option:active { transform: scale(0.98); }
+    .exp-tab:active { transform: scale(0.96); }
+    .btn:active { transform: scale(0.97); }
+  }
+
+  @media (max-width: 400px) {
+    .container { padding: 6px; }
+    header h1 { font-size: 16px; }
+    .exp-tab { font-size: 10px; padding: 4px 8px; }
+    .q-text { font-size: 14px; }
+    .option { font-size: 13px; padding: 9px 11px; min-height: 40px; }
+    .stat-item { font-size: 10px; padding: 3px 8px; }
+    .btn { font-size: 11px; padding: 5px 10px; }
+    .nav-btns .btn { padding: 10px 8px; font-size: 14px; }
+    .modal { padding: 12px; }
+    body { padding-bottom: 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🧬 CMG 实验复习答题</h1>
+    <p>细胞、分子与基因实验 · 原理·思考题·易错点</p>
+  </header>
+  <div class="mode-badge" id="modeBadge"><span class="normal-mode">📖 全部题目模式</span></div>
+  <div class="stats-bar">
+    <div class="stat-item">📊 进度 <span id="progressStats">0/0</span></div>
+    <div class="stat-item">✅ 正确 <span id="correctCount">0</span></div>
+    <div class="stat-item">❌ 错误 <span id="wrongCount">0</span></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  <div class="action-btns">
+    <button class="btn btn-outline" onclick="showWrongBook()">📕 错题本 (<span id="wrongBookCount">0</span>)</button>
+    <button class="btn btn-warning" onclick="startWrongRetry()" id="retryBtn" disabled>🔄 错题重做</button>
+    <button class="btn btn-success" onclick="resetAll()">🔄 重新开始</button>
+    <button class="btn btn-danger" onclick="restoreDeleted()" id="restoreBtn" style="display:none;">↩ 恢复已删(<span id="deletedCount">0</span>)</button>
+    <button class="btn btn-outline" onclick="clearSavedState()" style="font-size:12px;padding:6px 12px;border-color:#e74c3c;color:#e74c3c;">🗑 清除保存</button>
+  </div>
+  <!-- 搜索 & 收藏筛选 -->
+  <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;">
+    <input type="text" id="searchInput" placeholder="🔍 搜索关键词..." oninput="doSearch()" style="flex:1;min-width:120px;padding:8px 14px;border-radius:20px;border:2px solid #d0d5dd;font-size:13px;outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='#1a3c6e'" onblur="this.style.borderColor='#d0d5dd'">
+    <button class="btn btn-outline" id="starFilterBtn" onclick="toggleStarFilter()" style="font-size:12px;padding:6px 14px;">⭐ 只看收藏</button>
+  </div>
+  <div class="exp-tabs" id="expTabs"></div>
+  <div id="mindMapArea" style="display:none;margin-bottom:20px;"></div>
+  <div id="questionArea"></div>
+  <div class="complete-page" id="completePage">
+    <div class="big-icon">🎉</div>
+    <h2>全部完成！</h2>
+    <div class="score" id="finalScore">0%</div>
+    <div class="detail" id="finalDetail"></div>
+    <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="showWrongBook()">📕 查看错题</button>
+      <button class="btn btn-warning" onclick="startWrongRetry()" id="retryBtnFinal" disabled>🔄 错题重做</button>
+      <button class="btn btn-success" onclick="resetAll()">🔄 重新开始</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="wrongBookModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeWrongBook()">&times;</button>
+    <h2>📕 错题本</h2>
+    <div id="wrongBookContent"></div>
+  </div>
+</div>
+<script>
+// ====== 题库 ======
+// ====== 题库（90道核心题+90道补充题）======
+const ALL_QUESTIONS = [
+  // ========== 实验一：SDS-碱裂解法提取质粒DNA ==========
+  { id: 1, exp: 1, q: '质粒是一种什么样的DNA分子？',
+    opts: ['线状双链DNA分子', '环状双链DNA分子，能自主复制', '单链DNA分子', '环状RNA分子'],
+    ans: 1, explain: '质粒是独立于细菌染色体外的环状双链DNA分子，大小1kb~200kb，能自主复制且稳定遗传。' },
+  { id: 2, exp: 1, q: '质粒作为目的基因载体需要具备的基本条件不包括？',
+    opts: ['是独立的复制子', '有筛选标记/耐药性基因', '具有多克隆位点(MCS)', '分子量大，拷贝数低'],
+    ans: 3, explain: '质粒作为载体需要分子量小、拷贝数高。其他三项均为基本条件。' },
+  { id: 3, exp: 1, q: '核酸提取的基本原则中，下列哪项描述是错误的？',
+    opts: ['保证核酸一级结构的完整性', '去除蛋白质、脂类等杂质', '保持核酸处于酸性环境以稳定', '防止核酸降解'],
+    ans: 2, explain: '核酸在弱碱性条件下稳定，酸性环境会导致DNA脱嘌呤。"保持核酸处于酸性环境以稳定"是错误的。' },
+  { id: 4, exp: 1, q: 'SDS-碱裂解法中，溶液II的主要成分是？',
+    opts: ['葡萄糖和Tris', 'SDS和NaOH', '乙酸钾和冰乙酸', 'Tris和EDTA'],
+    ans: 1, explain: '溶液II为裂解液，含SDS（阴离子去污剂，破坏脂质层和使蛋白质变性）和NaOH（提供强碱性pH12，使DNA变性）。' },
+  { id: 5, exp: 1, q: '加入溶液III（中和液）后，质粒DNA存在于？',
+    opts: ['沉淀中', '上清液中', '有机相', '中间层'],
+    ans: 1, explain: '溶液III为酸性乙酸钾，中和后质粒DNA（分子小、环状）迅速复性，呈溶解状态存在于上清液中。' },
+  { id: 6, exp: 1, q: '关于碱裂解法，哪项描述错误？',
+    opts: ['溶液III使细胞裂解', '中和后质粒DNA复性', '染色体DNA变性后形成沉淀', '溶液III通常不含RNase'],
+    ans: 0, explain: '溶液II使细胞裂解，溶液III是中和液。' },
+  { id: 7, exp: 1, q: '提取质粒时若Buffer S1中未加入RNase A，最可能导致？',
+    opts: ['蛋白质污染', 'RNA污染', '基因组DNA污染', '盐离子污染'],
+    ans: 1, explain: 'RNase A用于降解RNA。若未加入，则RNA无法被降解，导致RNA污染。' },
+  { id: 8, exp: 1, q: '加入溶液II后剧烈振荡，最可能导致？',
+    opts: ['质粒DNA产量升高', '染色体DNA断裂污染质粒', 'RNA完全降解', '蛋白质沉淀更完全'],
+    ans: 1, explain: '剧烈振荡会导致染色体DNA被剪切成小片段，无法形成不溶性沉淀，溶解在上清中污染质粒。' },
+  { id: 9, exp: 1, q: 'Buffer S3（溶液III）的主要作用是？',
+    opts: ['裂解细胞壁', '提供强碱性环境', '中和NaOH使质粒复性', '降解RNA'],
+    ans: 2, explain: 'Buffer S3含有酸性乙酸钾，用于中和NaOH使pH降至中性，质粒DNA快速复性溶解。' },
+  { id: 10, exp: 1, q: '从新冠病毒样本中提取病毒RNA时，常用的RNase抑制剂是？',
+    opts: ['EDTA', 'SDS', 'β-巯基乙醇', 'NaOH'],
+    ans: 2, explain: 'β-巯基乙醇是RNase抑制剂，可防止RNA被RNase降解。' },
+  { id: 91, exp: 1, q: 'SDS-碱裂解法中Buffer S1（悬浮液）的成分不包括？',
+    opts: ['葡萄糖', 'Tris-HCl', 'SDS', 'EDTA'],
+    ans: 2, explain: 'Buffer S1含葡萄糖、Tris-HCl、EDTA和RNase A。SDS是Buffer S2的成分。' },
+  { id: 92, exp: 1, q: '酚/氯仿抽提核酸时DNA主要分布在？',
+    opts: ['上层水相', '中间层', '有机相', '取决于pH'],
+    ans: 0, explain: '酚/氯仿抽提后DNA溶于上层水相，蛋白质变性后位于中间层或有机相。' },
+  { id: 93, exp: 1, q: '标准质粒DNA提取步骤顺序是？',
+    opts: ['裂解→纯化→沉淀→溶解', '裂解→去除蛋白质→沉淀→溶解', '沉淀→裂解→去除蛋白质→溶解', '去除蛋白质→裂解→沉淀→溶解'],
+    ans: 1, explain: '标准顺序：裂解→去除蛋白质/染色体DNA→沉淀→溶解。' },
+  { id: 94, exp: 1, q: '溶菌酶的作用是？',
+    opts: ['水解细菌细胞壁肽聚糖', '裂解细胞膜', '降解DNA', '抑制RNase'],
+    ans: 0, explain: '溶菌酶特异性水解肽聚糖的β-1,4-糖苷键，破坏细菌细胞壁。' },
+  { id: 95, exp: 1, q: '乙醇沉淀DNA时通常需要加入？',
+    opts: ['NaCl', '乙酸钠(NaAc) pH5.2', 'KCl', 'MgCl₂'],
+    ans: 1, explain: '加入1/10体积的3mol/L NaAc（pH5.2），Na⁺中和DNA负电荷促进沉淀。' },
+  { id: 96, exp: 1, q: '核酸临时和长期保存条件分别是？',
+    opts: ['4℃临时、-20℃长期', '-20℃临时、-80℃长期', '室温临时、4℃长期', '4℃临时、-80℃长期'],
+    ans: 0, explain: 'DNA样品临时存放于4℃，长期保存在-20℃。' },
+  { id: 97, exp: 1, q: '70%乙醇漂洗的目的是？',
+    opts: ['裂解细胞', '沉淀DNA', '去除残留的盐和有机溶剂', '洗脱DNA'],
+    ans: 2, explain: '70%乙醇漂洗去除残留的盐离子和有机溶剂，同时不溶解DNA沉淀。' },
+  { id: 98, exp: 1, q: 'SDS在碱裂解法中的双重作用是？',
+    opts: ['提供碱性和裂解细胞', '裂解细胞膜和结合组蛋白释放DNA', '沉淀和溶解DNA', '变性和复性DNA'],
+    ans: 1, explain: 'SDS是阴离子去污剂破坏脂质层，同时结合组蛋白正电荷使DNA释放到溶液中。' },
+  { id: 99, exp: 1, q: 'Buffer A（制备管活化液）的作用是？',
+    opts: ['裂解细菌', '活化吸附膜使DNA高效均匀吸附', '洗脱质粒DNA', '中和裂解液'],
+    ans: 1, explain: 'Buffer A预处理活化DNA制备膜，保证后续质粒DNA能高效均匀吸附在膜上。' },
+  { id: 100, exp: 1, q: 'Buffer W1和W2作用区别是？',
+    opts: ['W1去盐W2去蛋白', 'W1去蛋白W2去盐', '两者作用相同', 'W1洗脱W2活化'],
+    ans: 1, explain: 'W1含盐酸胍去除蛋白质和核酸酶，W2含无水乙醇去除残留盐离子。' },
+  { id: 101, exp: 1, q: '培养基中加入抗生素（如Amp）的目的是？',
+    opts: ['促进细菌生长', '筛选含质粒的细菌', '裂解细菌', '诱导蛋白表达'],
+    ans: 1, explain: '抗生素杀死不含质粒的细菌，只让含耐药性基因的质粒菌生长，确保提取质粒正确。' },
+  { id: 102, exp: 1, q: 'SDS-碱裂解法的核心原理是利用什么差异？',
+    opts: ['分子大小差异', '变性与复性的能力差异', '电荷差异', '溶解度差异'],
+    ans: 1, explain: '基于质粒DNA与染色体DNA在碱变性后复性能力不同：质粒小环状快速复性，染色体大线性无法复性形成沉淀。' },
+
+  // ========== 实验二：核酸纯度浓度鉴定 + PCR ==========
+  { id: 11, exp: 2, q: '核酸在紫外光区的最大吸收峰在多少nm？',
+    opts: ['230nm', '260nm', '280nm', '340nm'],
+    ans: 1, explain: '嘌呤和嘧啶碱基含共轭双键，在260nm处有最大吸收。蛋白质在280nm。' },
+  { id: 12, exp: 2, q: '纯DNA的A₂₆₀/A₂₈₀比值正常范围是？',
+    opts: ['1.0~1.2', '1.8~2.0', '2.0~2.5', '0.5~1.0'],
+    ans: 1, explain: '纯DNA A₂₆₀/A₂₈₀=1.8~2.0。＜1.8提示蛋白质污染，＞2.0提示RNA污染。' },
+  { id: 13, exp: 2, q: 'A₂₆₀/A₂₃₀比值过低（<1.8）提示什么污染？',
+    opts: ['蛋白质污染', 'RNA污染', '胍盐或碳水化合物污染', '酚类污染'],
+    ans: 2, explain: 'A₂₆₀/A₂₃₀过低提示胍盐或碳水化合物污染，纯DNA该比值应为2.0~2.5。' },
+  { id: 14, exp: 2, q: '若DNA样品的A₂₆₀=0.2（1cm光程），其dsDNA浓度约为？',
+    opts: ['5μg/mL', '10μg/mL', '20μg/mL', '40μg/mL'],
+    ans: 1, explain: 'dsDNA：A₂₆₀=1对应50μg/mL。0.2×50=10μg/mL。' },
+  { id: 15, exp: 2, q: '核酸降解对紫外分光光度法定量的影响是？',
+    opts: ['A₂₆₀降低结果偏低', 'A₂₆₀升高结果虚高', '无影响', 'A₂₈₀升高'],
+    ans: 1, explain: '降解后碱基暴露更充分，A₂₆₀显著升高，浓度结果虚高。' },
+  { id: 16, exp: 2, q: 'PCR中退火温度过高最可能导致？',
+    opts: ['引物二聚体增多', '扩增效率降低', 'Taq酶失活', '非特异性扩增增加'],
+    ans: 1, explain: '退火温度过高使引物结合效率下降，扩增效率降低。退火过低才增加非特异性。' },
+  { id: 17, exp: 2, q: 'TaqMan探针法荧光产生原理是？',
+    opts: ['SYBR Green与dsDNA结合发光', 'Taq酶5\'→3\'外切酶活性水解探针', '分子信标构象变化', 'FRET无需酶切'],
+    ans: 1, explain: 'Taq酶在延伸时水解探针，使报告基团与淬灭基团分离，释放荧光。' },
+  { id: 18, exp: 2, q: 'Ct值是指？',
+    opts: ['模板完全扩增时的循环数', '荧光达阈值时的循环数', '荧光最强时的循环数', 'PCR总循环数'],
+    ans: 1, explain: 'Ct值为荧光信号达到阈值时的循环数，与初始模板量成反比。' },
+  { id: 19, exp: 2, q: 'qRT-PCR中内参基因正常扩增但靶基因无扩增说明？',
+    opts: ['新冠病毒阳性', '新冠病毒阴性', '存在PCR抑制物', '实验失败需重做'],
+    ans: 1, explain: '内参正常说明RNA提取和反转录成功，靶基因无扩增说明结果为阴性。' },
+  { id: 20, exp: 2, q: 'TaqMan探针法特异性高于SYBR Green I的主要原因是？',
+    opts: ['探针荧光信号更强', '探针不需DNA双链', '探针抑制非特异扩增', '探针需与靶序列特异性杂交'],
+    ans: 3, explain: 'TaqMan探针需与靶序列特异性杂交才产生荧光，SYBR Green则与任何dsDNA结合。' },
+  { id: 103, exp: 2, q: 'Naonodrop测量核酸浓度的第一步操作是？',
+    opts: ['直接加样品', '用溶解缓冲液blank调零', '蒸馏水清洗基座', '选择核酸种类'],
+    ans: 1, explain: '操作顺序：选种类→清洗基座→blank调零→样品测量→记录→清洗。' },
+  { id: 104, exp: 2, q: 'ssDNA的A₂₆₀=1对应多少μg/mL？',
+    opts: ['50', '40', '33', '20'],
+    ans: 1, explain: 'ssDNA/RNA：A₂₆₀=1对应40μg/mL。dsDNA对应50，寡核苷酸对应20。' },
+  { id: 105, exp: 2, q: 'PCR中Mg²⁺浓度过高会导致？',
+    opts: ['扩增效率提高', '非特异性扩增增加', 'Taq酶失活', '引物无法结合'],
+    ans: 1, explain: 'Mg²⁺是Taq酶辅因子，浓度过高增加非特异性扩增，过低则酶活性不足。' },
+  { id: 106, exp: 2, q: 'Taq DNA聚合酶最适反应温度是？',
+    opts: ['95℃', '58℃', '72℃', '37℃'],
+    ans: 2, explain: 'Taq酶最适温度72℃。95℃变性，58℃退火。' },
+  { id: 107, exp: 2, q: 'PCR三个步骤的正确顺序是？',
+    opts: ['退火→变性→延伸', '变性→退火→延伸', '延伸→变性→退火', '变性→延伸→退火'],
+    ans: 1, explain: 'PCR：变性(95℃解链)→退火(引物结合)→延伸(72℃合成)。' },
+  { id: 108, exp: 2, q: '一步法与两步法RT-PCR的主要区别？',
+    opts: ['聚合酶种类不同', 'RT与PCR是否同管', '是否需要引物', '荧光检测方式不同'],
+    ans: 1, explain: '一步法：逆转录和PCR同管进行；两步法：先单独反转录再取cDNA做PCR。' },
+  { id: 109, exp: 2, q: 'PCR产物电泳多条非特异条带最可能原因是？',
+    opts: ['循环次数过少', 'dNTP浓度不足', '延伸温度过高', '退火温度过低'],
+    ans: 3, explain: '退火温度过低导致引物非特异性结合，产生多条扩增条带。' },
+  { id: 110, exp: 2, q: 'PCR无目标条带最可能的原因是？',
+    opts: ['退火温度过低', '模板浓度过高', '延伸时间过长', '引物设计错误'],
+    ans: 3, explain: '引物设计错误是PCR无产物的最常见原因之一。' },
+  { id: 111, exp: 2, q: 'SYBR Green I荧光增强与什么过程直接相关？',
+    opts: ['DNA双链形成', '模板变性', '引物退火', '聚合酶延伸'],
+    ans: 0, explain: 'SYBR Green I嵌入双链DNA小沟后发出强烈荧光。' },
+  { id: 112, exp: 2, q: 'TaqMan探针5\'和3\'端分别标记什么？',
+    opts: ['5\'淬灭3\'报告', '5\'报告3\'淬灭', '两端都报告', '两端都淬灭'],
+    ans: 1, explain: 'TaqMan探针5\'端报告基团，3\'端淬灭基团，探针水解后释放荧光。' },
+  { id: 113, exp: 2, q: '新冠qRT-PCR检测中错误的操作是？',
+    opts: ['样本低温运送提取RNA', '包含阳性/阴性对照和内参', '用普通PCR跑胶代替实时荧光检测', '加样避免气泡'],
+    ans: 2, explain: 'qPCR核心是利用荧光实时定量，普通PCR后跑胶不能替代。' },
+
+  // ========== 实验三：核酸完整性 + PCR产物鉴定 ==========
+  { id: 21, exp: 3, q: 'DNA分子在电泳中向正极迁移的原因是？',
+    opts: ['DNA带正电荷', '电场方向由负到正', 'DNA带负电荷', '凝胶吸附作用'],
+    ans: 2, explain: 'DNA带负电荷，在电场中向正极（阳极）迁移。' },
+  { id: 22, exp: 3, q: '质粒DNA电泳三种构象迁移率从快到慢是？',
+    opts: ['超螺旋>线性>开环', '开环>线性>超螺旋', '线性>超螺旋>开环', '超螺旋>开环>线性'],
+    ans: 0, explain: '超螺旋结构最紧密最快，开环最松散最慢。' },
+  { id: 23, exp: 3, q: '下列哪项不是上样缓冲液的成分或作用？',
+    opts: ['甘油增加密度', '蛋白酶K降解蛋白质', 'EDTA抑制核酸酶', '溴酚蓝指示进度'],
+    ans: 1, explain: '蛋白酶K是裂解细胞时用的，不是上样缓冲液成分。' },
+  { id: 24, exp: 3, q: '上样缓冲液中EDTA的主要作用是？',
+    opts: ['染色DNA', '抑制核酸酶活性', '指示电泳进度', '增加样品密度'],
+    ans: 1, explain: 'EDTA螯合二价金属离子抑制核酸酶，保护DNA不被降解。' },
+  { id: 25, exp: 3, q: '电压过高会产生什么现象？',
+    opts: ['条带变细', '微笑效应', '分离效果更好', 'DNA产量增加'],
+    ans: 1, explain: '电压过高产热过多，使凝胶变形或DNA变性，产生微笑效应。' },
+  { id: 26, exp: 3, q: '分离500bp和1000bp片段宜选多大浓度琼脂糖？',
+    opts: ['2.0%', '0.5%', '5.0%', '1.0%'],
+    ans: 0, explain: '琼脂糖浓度越高孔径越小，适合分离小片段，500~1000bp宜选2.0%。' },
+  { id: 27, exp: 3, q: '质粒电泳仅见一条超螺旋带说明？',
+    opts: ['质粒线性化', '完全降解', '质粒纯度高且完整', '浓度过低'],
+    ans: 2, explain: '仅出现一条清晰超螺旋条带，说明质粒纯度高、结构完整。' },
+  { id: 28, exp: 3, q: '溴酚蓝在电泳中的作用是？',
+    opts: ['嵌入DNA发光', '增加密度', '指示迁移进度', '保护DNA'],
+    ans: 2, explain: '溴酚蓝是电泳指示剂，在1%胶中约与600bp DNA迁移率相当。' },
+  { id: 29, exp: 3, q: '琼脂糖电泳中线性DNA迁移率主要取决于？',
+    opts: ['电荷', '分子大小', '电压', '凝胶浓度'],
+    ans: 1, explain: '线性DNA迁移率与lgMW（分子量对数）成反比，分子大小是主要因素。' },
+  { id: 30, exp: 3, q: '电泳小分子区域出现弥散亮带说明？',
+    opts: ['蛋白质污染', 'RNA污染', '浓度过高', '时间不够'],
+    ans: 1, explain: 'RNA分子量小，迁移快，在前沿出现弥散状亮带是RNA污染的典型特征。' },
+  { id: 114, exp: 3, q: '以下哪种介质孔径最小分辨率最高？',
+    opts: ['琼脂糖凝胶', '聚丙烯酰胺凝胶(PAGE)', '醋酸纤维素薄膜', '淀粉凝胶'],
+    ans: 1, explain: 'PAGE孔径小分辨率高，适合<1kb DNA或蛋白质；琼脂糖孔径大适合0.1~50kb。' },
+  { id: 115, exp: 3, q: 'TAE缓冲液的特点是？',
+    opts: ['离子强度高缓冲强', '电导率低产热少适合长时间电泳', '适合短时高分辨', 'pH更高'],
+    ans: 1, explain: 'TAE离子强度低、电导率低、产热少，适合长时间电泳。TBE缓冲力强适合短时高分辨。' },
+  { id: 116, exp: 3, q: 'EB的电荷性质及其对电泳的影响？',
+    opts: ['带负电向正极', '不带电均匀扩散', '带正电向阴极影响DNA迁移', '带正电向阳极'],
+    ans: 2, explain: 'EB带正电荷，向阴极移动，与DNA迁移方向相反，影响实际迁移率。' },
+  { id: 117, exp: 3, q: '低熔点琼脂糖熔点和主要用途？',
+    opts: ['100℃常规电泳', '62~65℃ DNA回收和连接', '80℃蛋白电泳', '45℃ RNA电泳'],
+    ans: 1, explain: '低熔点琼脂糖熔点62~65℃，37℃可维持液态，用于DNA回收和快速连接。' },
+  { id: 118, exp: 3, q: '脉冲场凝胶电泳(PFGE)分离范围？',
+    opts: ['<1kb', '1~10kb', '10~50kb', '>50kb'],
+    ans: 3, explain: 'PFGE通过周期性变换电场方向，分离>50kb的超大DNA分子。' },
+  { id: 119, exp: 3, q: '银染色法原理是？',
+    opts: ['银离子嵌入DNA发光', 'Ag⁺与核酸形成稳定复合物呈黑褐色', '银离子沉淀显色', '银离子催化发光'],
+    ans: 1, explain: '银离子(Ag⁺)与核酸形成稳定复合物，将核酸染成黑褐色，主要用于PAGE。' },
+  { id: 120, exp: 3, q: '电泳缓冲液pH影响？',
+    opts: ['凝胶孔径', '分子电荷状态', '电压大小', '染色效果'],
+    ans: 1, explain: '缓冲液pH影响分子的电离状态和所带电荷，从而影响迁移行为。' },
+
+  // ========== 实验四：LDH酶活性测定 ==========
+  { id: 31, exp: 4, q: 'LDH的生理功能是？',
+    opts: ['催化葡萄糖→丙酮酸', '催化乳酸⇌丙酮酸', '催化NADH合成', '催化脂肪酸氧化'],
+    ans: 1, explain: 'LDH催化乳酸和丙酮酸相互转化。无氧时丙酮酸→乳酸，有氧时乳酸→丙酮酸。' },
+  { id: 32, exp: 4, q: '2,4-二硝基苯肼的作用是？',
+    opts: ['氧化NADH', '抑制LDH', '与丙酮酸反应生成红棕色产物', '作为辅酶'],
+    ans: 2, explain: '2,4-二硝基苯肼与丙酮酸反应生成丙酮酸二硝基苯腙，加NaOH后呈红棕色（A₄₄₀）。' },
+  { id: 33, exp: 4, q: '为何设置测定空白和标准空白？',
+    opts: ['节省试剂', '分别校正样品背景和试剂背景', '增加复杂度', '无必要'],
+    ans: 1, explain: '测定空白扣样品背景，标准空白扣试剂背景，两个空白独立校正提高准确性。' },
+  { id: 34, exp: 4, q: '本实验中LDH酶活性单位定义是？',
+    opts: ['每分钟催化1μmol底物', '每mg蛋白酶活力', '37℃催化1μmol', '100mL样品产生1μmol丙酮酸为1单位'],
+    ans: 3, explain: '100mL样品在37℃pH10.0与底物孵育15min产生1.0μmol丙酮酸为1个酶活性单位。' },
+  { id: 35, exp: 4, q: '三次37℃水浴的目的不包括？',
+    opts: ['预温体系达反应温度', '启动酶促反应生成丙酮酸', '使显色反应完全', '使DNA变性'],
+    ans: 3, explain: '三次水浴：①预温(2-3min)②酶促反应(15min)③显色反应(15min)。与DNA变性无关。' },
+  { id: 36, exp: 4, q: '比色法测定LDH活性读吸光度的波长是？',
+    opts: ['260nm', '280nm', '340nm', '440nm'],
+    ans: 3, explain: '丙酮酸二硝基苯腙在碱性条件下呈红棕色，在440nm处有最大吸收。' },
+  { id: 37, exp: 4, q: '为何测定酶促反应初速度？',
+    opts: ['初速度最快', '初速度与酶量成正比线性好', '终速度更准', '不需要测'],
+    ans: 1, explain: '底物消耗≤5%时反应速率与酶量成正比，可准确反映酶活性。' },
+  { id: 38, exp: 4, q: '稀释倍数过大会导致？',
+    opts: ['酶活性偏高', '酶活性偏低且误差大', '无影响', '底物消耗过快'],
+    ans: 1, explain: '稀释倍数过大→丙酮酸生成极少→仪器误差大→结果重复性差、偏低。' },
+  { id: 39, exp: 4, q: '用NADH为辅酶的酶如何测活性？',
+    opts: ['测260nm吸收', '连续监测340nm吸收变化', '加2,4-二硝基苯肼显色', '用TaqMan探针'],
+    ans: 1, explain: 'NADH在340nm有特征吸收峰，连续监测ΔA₃₄₀可计算NADH消耗速率。' },
+  { id: 40, exp: 4, q: '血清LDH升高通常与哪种疾病无关？',
+    opts: ['溶血性贫血', '急性心梗', '2型糖尿病', '慢性乙肝'],
+    ans: 2, explain: 'LDH升高常见于心梗、肝病、溶血等。2型糖尿病与LDH升高无直接关联。' },
+  { id: 124, exp: 4, q: 'LDH的化学组成是？',
+    opts: ['含镁二聚体', '含锌四聚体', '含铁单体', '含钙三聚体'],
+    ans: 1, explain: 'LDH是一种含锌的四聚体酶，由M亚基和H亚基组成。' },
+  { id: 125, exp: 4, q: '血浆LDH正常值范围是？',
+    opts: ['50~100 U/L', '100~250 U/L', '250~500 U/L', '500~1000 U/L'],
+    ans: 1, explain: '血浆LDH正常值100~250U/L，广泛分布于各组织。' },
+  { id: 126, exp: 4, q: 'NADH在多少nm有特征吸收峰？',
+    opts: ['260', '280', '340', '440'],
+    ans: 2, explain: '还原型NADH/NADPH在340nm有特征吸收峰，氧化型NAD⁺无吸收。' },
+  { id: 127, exp: 4, q: '不连续法测定酶活性的适用条件是？',
+    opts: ['无法连续监测底物或产物变化', '更精确', '更快', '样品更少'],
+    ans: 0, explain: '当不能连续选择性监测底物或产物变化时，需终止反应用不连续法检测。' },
+  { id: 128, exp: 4, q: '酶比活力(specific activity)是指？',
+    opts: ['每mL酶活力单位', '每mg蛋白所含酶活力单位(U/mg)', '每分钟催化摩尔数', '绝对活性'],
+    ans: 1, explain: '比活力=U/mg蛋白，代表酶制剂的纯度，越高越纯。' },
+
+  // ========== 实验五：LDH同工酶谱分析 ==========
+  { id: 41, exp: 5, q: 'LDH同工酶由几种亚基组成？',
+    opts: ['α和β', 'M(肌肉型)和H(心脏型)', '4种不同亚基', '1种亚基不同修饰'],
+    ans: 1, explain: 'LDH由M和H两种亚基以不同比例组合成5种同工酶(LDH1~5)。' },
+  { id: 42, exp: 5, q: '非变性PAGE中哪种LDH迁移最快？',
+    opts: ['LDH5(M₄)', 'LDH1(H₄)', 'LDH3(H₂M₂)', 'LDH2(H₃M)'],
+    ans: 1, explain: 'H亚基含更多酸性氨基酸残基，pH8.3下带更多负电荷。LDH1(H₄)最快。' },
+  { id: 43, exp: 5, q: 'LDH同工酶分析为何必须在非变性条件下？',
+    opts: ['非变性电泳更快', 'SDS使酶失活且消除电荷差异', '非变性不需染色', 'SDS太贵'],
+    ans: 1, explain: 'SDS变性破坏LDH四聚体使其失活，且使所有蛋白带均一负电荷掩盖电荷差异。' },
+  { id: 44, exp: 5, q: 'AP和TEMED的作用分别是？',
+    opts: ['AP加速TEMED引发', 'AP引发TEMED加速', '两者都引发', '两者都加速'],
+    ans: 1, explain: 'AP（过硫酸铵）是引发剂产生自由基，TEMED是加速剂催化AP产自由基。' },
+  { id: 45, exp: 5, q: '溶解氧对PAGE聚合的影响？',
+    opts: ['加速聚合', '无影响', '淬灭自由基抑制聚合', '作为引发剂'],
+    ans: 2, explain: '氧气淬灭自由基抑制聚合，因此制胶需除气或隔绝氧气。' },
+  { id: 46, exp: 5, q: 'LDH显色反应中NBT的作用是？',
+    opts: ['氧化乳酸', '接受电子生成紫色不溶Formazan', '提供NAD⁺', '催化剂'],
+    ans: 1, explain: 'NADH→PMS→NBT(黄)→Formazan(紫不溶)，沉淀在凝胶上显色。' },
+  { id: 47, exp: 5, q: '血清LDH5占比显著增加提示哪个器官受损？',
+    opts: ['心脏', '肝脏', '肾脏', '大脑'],
+    ans: 1, explain: 'LDH4/LDH5主要分布在肝脏和骨骼肌，肝病时血清LDH4/LDH5升高。' },
+  { id: 48, exp: 5, q: '急性心梗时哪些LDH同工酶升高？',
+    opts: ['LDH4/LDH5', 'LDH1/LDH2', 'LDH3/LDH4', '仅LDH5'],
+    ans: 1, explain: '心脏主要含LDH1/LDH2，心梗时升高且LDH1/LDH2>1有诊断意义。' },
+  { id: 49, exp: 5, q: '非变性PAGE上样缓冲液中甘油的作用？',
+    opts: ['指示电泳', '增加密度使样品沉入孔底', '保护DNA', '作为染料'],
+    ans: 1, explain: '甘油密度高，使样品沉入加样孔底部，避免漂浮扩散。' },
+  { id: 50, exp: 5, q: '未聚合丙烯酰胺溶液的特性？',
+    opts: ['易挥发', '有蓄积性神经毒性不能倒入下水道', '易燃', '无毒'],
+    ans: 1, explain: '未聚合的丙烯酰胺有蓄积性神经毒性，绝对不能倒入下水道。' },
+  { id: 134, exp: 5, q: '凝胶总浓度T和交联度C的公式是？',
+    opts: ['T=(a+b)/V×100% C=b/(a+b)×100%', 'T=a/(a+b) C=b/V', 'T=(a-b)/V C=a/(a+b)', 'T=a/V C=b/V'],
+    ans: 0, explain: 'T=(a+b)/V×100%，C=b/(a+b)×100%。a=Acr克数，b=Bis克数，V=体积。' },
+  { id: 135, exp: 5, q: '光聚合使用的引发剂是？',
+    opts: ['AP', '核黄素(维生素B₂)', 'TEMED', 'SDS'],
+    ans: 1, explain: '光聚合用核黄素在光照下产生自由基，催化聚合反应。' },
+  { id: 136, exp: 5, q: 'PAGE不具有的特点是？',
+    opts: ['机械强度好', '弹性大', '电渗弱', '孔径大适合大片段'],
+    ans: 3, explain: 'PAGE孔径小，适合小分子。孔径大是琼脂糖凝胶的特点。' },
+  { id: 137, exp: 5, q: '60%白血病患者哪些LDH同工酶升高？',
+    opts: ['LDH1/LDH2', 'LDH3/LDH4', 'LDH4/LDH5', '仅LDH5'],
+    ans: 1, explain: '60%白血病患者出现LDH3、LDH4升高的同工酶谱。' },
+
+  // ========== 实验六：Western Blot ==========
+  { id: 51, exp: 6, q: 'Western Blot的基本原理是？',
+    opts: ['DNA与探针杂交', '抗原抗体特异性结合', '酶与底物催化', '核酸碱基互补'],
+    ans: 1, explain: 'Western Blot（免疫印迹）根据抗原抗体特异性结合检测蛋白。' },
+  { id: 52, exp: 6, q: '为何使用一抗和二抗两步孵育？',
+    opts: ['操作简单', '放大信号提高灵敏度降低背景', '只需一种抗体', '省时间'],
+    ans: 1, explain: '两步孵育放大信号(一个一抗结合多个二抗)，降低非特异背景，具通用性。' },
+  { id: 53, exp: 6, q: 'ECL显色中HRP催化的底物是？',
+    opts: ['溴酚蓝', '鲁米诺(Luminol)', '甘氨酸', 'DTT'],
+    ans: 1, explain: 'HRP催化鲁米诺氧化产生激发态中间体，返回基态时释放光子。' },
+  { id: 54, exp: 6, q: '转膜时凝胶与膜的位置关系？',
+    opts: ['无所谓', '凝胶靠正极膜靠负极', '都在正极', '凝胶靠负极膜靠正极'],
+    ans: 3, explain: '蛋白带负电从负向正迁移，凝胶靠负极膜靠正极，使蛋白转到膜上。' },
+  { id: 55, exp: 6, q: '封闭液(5%脱脂奶粉)的主要目的是？',
+    opts: ['去除膜上蛋白', '增强抗体结合', '封闭膜上非特异性结合位点', '促进转膜'],
+    ans: 2, explain: '封闭液封闭膜上未结合蛋白的疏水位点，防止抗体非特异结合降低背景。' },
+  { id: 56, exp: 6, q: 'SDS在上样缓冲液中的作用不包括？',
+    opts: ['使蛋白带负电荷', '破坏氢键和疏水键', '维持蛋白生物活性', '使迁移率与分子量成正比'],
+    ans: 2, explain: 'SDS使蛋白变性失活（不是维持活性），消除电荷差异按分子量分离。' },
+  { id: 57, exp: 6, q: '浓缩胶的典型pH值是？',
+    opts: ['5.0', '8.8', '6.8', '7.4'],
+    ans: 2, explain: '浓缩胶pH6.8弱酸性使甘氨酸解离少，与Cl⁻形成不连续界面产生浓缩效应。分离胶pH8.8。' },
+  { id: 58, exp: 6, q: '高背景信号的可能原因不包括？',
+    opts: ['封闭不充分', '抗体浓度过高', '洗涤不彻底', '抗原上样量太少'],
+    ans: 3, explain: '上样量太少量条带弱而不是背景高。封闭/抗体浓度/洗涤是背景高的主因。' },
+  { id: 59, exp: 6, q: '抗原分子量是预估两倍最可能的原因是？',
+    opts: ['抗体不纯', '蛋白质形成二聚体', 'Marker偏移', '浓度不当'],
+    ans: 1, explain: 'β-巯基乙醇/DTT不足或煮沸不够，二硫键未被还原，蛋白以二聚体形式存在。' },
+  { id: 60, exp: 6, q: 'SDS-PAGE分离蛋白分子量的线性范围是？',
+    opts: ['5~50kD', '15~200kD', '200~500kD', '1~15kD'],
+    ans: 1, explain: '在15~200kD范围内，蛋白迁移率与分子量对数呈线性关系。' },
+  { id: 143, exp: 6, q: '样品进入分离胶后电压应调至？',
+    opts: ['保持80V', '降至50V', '升至160V', '关闭电源'],
+    ans: 2, explain: '80V浓缩→160V分离使蛋白按分子量大小分离。' },
+  { id: 144, exp: 6, q: '转膜三明治的顺序从负极到正极是？',
+    opts: ['膜-胶-滤纸', '滤纸-胶-膜-滤纸', '胶-膜-滤纸', '滤纸-膜-胶-滤纸'],
+    ans: 1, explain: '从负极(黑)到正极(红)：滤纸→胶→NC膜→滤纸。胶靠负极膜靠正极。' },
+  { id: 145, exp: 6, q: 'DTT(二硫苏糖醇)的作用是？',
+    opts: ['增加密度', '指示电泳', '使蛋白变性并还原二硫键', '带负电荷'],
+    ans: 2, explain: 'DTT还原二硫键使蛋白完全变性解聚，与SDS定量结合。' },
+  { id: 146, exp: 6, q: '分离胶缓冲液(Tris-Cl)的浓度和pH？',
+    opts: ['0.5M pH6.8', '1.5M pH8.8', '0.025M pH8.3', '1.0M pH7.0'],
+    ans: 1, explain: '分离胶用1.5M Tris-Cl pH8.8，浓缩胶用0.5M Tris-Cl pH6.8。' },
+  { id: 147, exp: 6, q: 'TBS-T比TBS多含什么成分？',
+    opts: ['SDS', 'Tween-20增强洗涤', '甘油稳定蛋白', 'EDTA抑核酸酶'],
+    ans: 1, explain: 'TBS-T含0.1% Tween-20，是非离子型表面活性剂增强洗涤效果。' },
+  { id: 148, exp: 6, q: '条带反白/中空现象的原因是？',
+    opts: ['抗原太少', '一抗浓度太低', '上样量大→局部HRP过多底物快速消耗', '转膜时间短'],
+    ans: 2, explain: '上样量过大→靶蛋白过多→HRP过多→条带中心底物快速耗竭→中空反白。' },
+
+  // ========== 实验七：亲和层析纯化GST融合蛋白 ==========
+  { id: 61, exp: 7, q: '亲和层析纯化GST融合蛋白的原理是？',
+    opts: ['GST与Ni²⁺结合', 'GST与谷胱甘肽(Glu)特异性结合', 'GST与SDS结合', 'GST与抗体结合'],
+    ans: 1, explain: '谷胱甘肽固定在琼脂糖珠上，特异性结合GST融合蛋白。' },
+  { id: 62, exp: 7, q: '洗脱GST融合蛋白的试剂是？',
+    opts: ['SDS', 'IPTG', 'PBS', '还原型谷胱甘肽(GSH)'],
+    ans: 3, explain: 'GSH游离Glu竞争取代琼脂糖珠上Glu与GST的结合，洗脱纯化蛋白。' },
+  { id: 63, exp: 7, q: 'IPTG在GST表达中的作用是？',
+    opts: ['裂解细菌', '抗生素筛选', '诱导乳糖操纵子转录促表达', '洗脱蛋白'],
+    ans: 2, explain: 'IPTG是乳糖模拟物，诱导乳糖操纵子转录，促使GST融合蛋白表达。' },
+  { id: 64, exp: 7, q: '分离胶加完后加一层水的目的是？',
+    opts: ['保湿', '防漏', '使上沿平直并隔绝空气促聚合', '加速凝聚'],
+    ans: 2, explain: '水封隔绝空气（氧抑制聚合），使分离胶上沿平直保证条带整齐。' },
+  { id: 65, exp: 7, q: '盐析法的原理是？',
+    opts: ['改变电荷', '破坏水化层使蛋白聚集沉淀', '改变分子大小', '使蛋白与配体结合'],
+    ans: 1, explain: '大量中性盐使水的活度降低，破坏蛋白表面水化层，使蛋白聚集沉淀且保持天然构象。' },
+  { id: 66, exp: 7, q: '哪种层析基于分子大小排阻效应？',
+    opts: ['离子交换', '亲和层析', '凝胶过滤层析', '吸附层析'],
+    ans: 2, explain: '凝胶过滤（分子筛）基于分子大小排阻：大分子先洗脱，小分子后洗脱。' },
+  { id: 67, exp: 7, q: 'GST亲和层析洗涤柱子的缓冲液是？',
+    opts: ['蒸馏水', 'PBS', 'SDS', 'GSH'],
+    ans: 1, explain: 'PBS洗涤6次以上，去除未结合的杂蛋白，注意低转速保护珠子。' },
+  { id: 68, exp: 7, q: 'SDS-PAGE中蛋白迁移率主要取决于？',
+    opts: ['原始电荷', '分子量大小', '等电点', '氨基酸序列'],
+    ans: 1, explain: 'SDS消除电荷差异，使迁移率主要取决于分子量大小。' },
+  { id: 69, exp: 7, q: '考马斯亮蓝R250的作用是？',
+    opts: ['使DNA显色', '使蛋白质显色', '电泳指示剂', '催化剂'],
+    ans: 1, explain: '考马斯亮蓝R250是蛋白质染色剂，使蛋白条带在浅色背景上显蓝色。' },
+  { id: 70, exp: 7, q: '纯化后SDS-PAGE无目标条带最不可能的愿因是？',
+    opts: ['GSH浓度过高', '未加IPTG诱导', '洗涤用高浓度变性剂', '裂解不充分'],
+    ans: 0, explain: 'GSH浓度过高只会提高洗脱效率不会导致无条带。其他都会导致纯化失败。' },
+  { id: 151, exp: 7, q: 'GST标签蛋白分子量约为？',
+    opts: ['14kDa', '26kDa', '35kDa', '50kDa'],
+    ans: 1, explain: 'GST蛋白分子量约26kDa，可溶，提高外源蛋白可溶性表达。' },
+  { id: 152, exp: 7, q: '亲和层析阴性对照是？',
+    opts: ['纯化后GST', '未诱导菌体裂解液', '诱导后菌体裂解液', 'Marker'],
+    ans: 1, explain: '未诱导菌体裂解液作阴性对照，无GST条带证明表达依赖IPTG诱导。' },
+  { id: 153, exp: 7, q: 'GST亲和层析离心转速？',
+    opts: ['12000rpm', '10000rpm', '2000rpm', '500rpm'],
+    ans: 2, explain: '2000rpm低速离心保护琼脂糖珠不被破坏。' },
+
+  // ========== 实验八：凝胶过滤层析 ==========
+  { id: 71, exp: 8, q: '凝胶过滤层析洗脱顺序正确的是？',
+    opts: ['大分子先洗脱', '等电点低先洗脱', '小分子先洗脱', '等电点高先洗脱'],
+    ans: 0, explain: '大分子不进孔隙路径短先洗脱，小分子进孔隙路径长后洗脱。' },
+  { id: 72, exp: 8, q: 'BSA脱盐实验中BSA和NaCl的洗脱顺序？',
+    opts: ['NaCl先', 'BSA先', '同时', '取决于温度'],
+    ans: 1, explain: 'BSA(66kDa)排阻极限以上先进孔→先洗脱；NaCl(58Da)进孔隙→后洗脱。' },
+  { id: 73, exp: 8, q: 'Sephadex G-50的分离范围？',
+    opts: ['<700Da', '1000~5000Da', '1500~30000Da', '5000~600000Da'],
+    ans: 2, explain: 'G-50分离1500~30000Da，适合小蛋白脱盐。BSA(66kDa)在排阻极限以上。' },
+  { id: 74, exp: 8, q: '凝胶过滤固定相和流动相的特征？',
+    opts: ['固定相带电', '多孔凝胶(无电荷)+中性缓冲液', '固定相为配体', '固定相为吸附剂'],
+    ans: 1, explain: '固定相是多孔中性凝胶，流动相是中性缓冲液，依据分子大小分离。' },
+  { id: 75, exp: 8, q: '检测BSA洗脱峰用多少nm？',
+    opts: ['260nm', '280nm', '340nm', '440nm'],
+    ans: 1, explain: 'BSA含色氨酸酪氨酸等芳香族氨基酸，在280nm有紫外吸收。' },
+  { id: 76, exp: 8, q: '电导率曲线代表什么？',
+    opts: ['蛋白浓度', 'NaCl等小分子盐浓度', 'pH变化', '温度变化'],
+    ans: 1, explain: '电导率反映离子浓度，检测NaCl等小分子盐的洗脱情况。' },
+  { id: 159, exp: 8, q: 'Sephadex G-25的用途？',
+    opts: ['<700Da脱盐', '1000~5000Da多肽脱盐', '1500~30000Da蛋白脱盐', '4000~150000Da蛋白分离'],
+    ans: 1, explain: 'G-25分离范围1000~5000Da，用于小分子多肽纯化和脱盐。' },
+  { id: 160, exp: 8, q: 'Sephadex G值越大说明？',
+    opts: ['交联度越大孔径越小', '交联度越小孔径越大', '分离范围越小', '凝胶越硬'],
+    ans: 1, explain: 'G值越大交联度越小孔径越大，分离范围越大。' },
+
+  // ========== 实验九：染色体制备与观察 ==========
+  { id: 79, exp: 9, q: '低渗处理的最佳条件是？',
+    opts: ['56℃15min', '4℃30min', '37℃15min', '37℃30min'],
+    ans: 3, explain: '0.075M KCl 37℃低渗30min，使细胞充分膨胀分散染色体。' },
+  { id: 80, exp: 9, q: '正常小鼠染色体数目是？',
+    opts: ['46', '44', '42', '40'],
+    ans: 3, explain: '小鼠2n=40（20对），分为4组，1对性染色体。' },
+  { id: 81, exp: 9, q: '染色体制备成败最关键步骤是？',
+    opts: ['秋水仙素处理', '低渗处理', '染色', '固定', '滴片'],
+    ans: 1, explain: '低渗是成败关键：不足→细胞不破裂，过度→染色体丢失。' },
+  { id: 82, exp: 9, q: '秋水仙素的作用机制是？',
+    opts: ['促进浓缩', '破坏细胞膜', '抑制纺锤体停滞后期', '抑制DNA复制', '与微管蛋白结合停滞中期'],
+    ans: 4, explain: '秋水仙素与微管蛋白结合阻止微管形成，抑制纺锤体，停滞于有丝分裂中期。' },
+  { id: 83, exp: 9, q: '高距离滴片目的是？',
+    opts: ['使细胞膜破裂分散染色体', '加快干燥', '减少背景', '提高染色'],
+    ans: 0, explain: '从30cm高度滴到预冷玻片，冲击力使细胞破裂释放染色体。' },
+  { id: 84, exp: 9, q: '小鼠染色体的典型形态？',
+    opts: ['混合着丝粒', '端着丝粒呈U/V型', '亚中着丝粒', '中央着丝粒'],
+    ans: 1, explain: '小鼠为端着丝粒染色体，中期呈U型或V型。' },
+  { id: 85, exp: 9, q: '巴氏小体的本质是？',
+    opts: ['核仁残余', '失活的X染色体', '随体', '染色质颗粒'],
+    ans: 1, explain: '巴氏小体是雌性体细胞中固缩失活的一条X染色体。' },
+  { id: 86, exp: 9, q: 'XX、XXY、XO的巴氏小体数量？',
+    opts: ['1个、1个、无', '1个、2个、无', '1个、无、1个', '2个、1个、无'],
+    ans: 0, explain: '巴氏小体数=X数-1。XX有1，XXY有1，XO无。' },
+  { id: 87, exp: 9, q: '莱昂氏假说不包括？',
+    opts: ['两条X之一随机失活', '可来自父方或母方', '胚胎早期发生', '雄性X也失活'],
+    ans: 3, explain: '莱昂假说针对雌性，雄性仅一条X不失活。' },
+  { id: 88, exp: 9, q: '人外周血淋巴细胞分裂刺激物是？',
+    opts: ['秋水仙素', '植物凝集素(PHA)', '低渗液', 'Giemsa染液'],
+    ans: 1, explain: 'PHA刺激G₀/G₁期淋巴细胞转化为淋巴母细胞，开始有丝分裂。' },
+  { id: 89, exp: 9, q: '巴氏小体的典型位置和形态？',
+    opts: ['核中央圆形', '核仁周围半月形', '细胞质中椭圆', '紧贴核膜内侧三角形/馒头形'],
+    ans: 3, explain: '巴氏小体紧贴核膜内侧，三角形/馒头形/椭圆形，约1μm，深染。' },
+  { id: 90, exp: 9, q: '低渗液是？',
+    opts: ['甲醇-冰醋酸', '0.9% NaCl', '0.075M KCl', '石炭酸品红', 'Giemsa'],
+    ans: 2, explain: '0.075M KCl是低渗液，膨胀细胞分散染色体。' },
+  { id: 165, exp: 9, q: '固定液（甲醇:冰醋酸）比例？',
+    opts: ['1:1提前配', '3:1新鲜配制', '1:3可长期', '2:1加热'],
+    ans: 1, explain: '固定液甲醇:冰醋酸=3:1，必须新鲜配制。终止低渗、固定形态、改变膜通透。' },
+  { id: 166, exp: 9, q: '人染色体数及分类依据？',
+    opts: ['40条大小', '44条形状', '46条着丝粒位置', '48条功能'],
+    ans: 2, explain: '人2n=46（23对），按着丝粒位置分中央/亚中/近端着丝粒三类。' },
+  { id: 167, exp: 9, q: '石炭酸品红属于什么染料？',
+    opts: ['酸性染碱性蛋白', '碱性核染料与酸性DNA结合', '中性', '荧光需紫外'],
+    ans: 1, explain: '石炭酸品红是碱性核染料，与细胞核内酸性DNA结合呈深紫红色。' },
+  { id: 168, exp: 9, q: '人淋巴细胞培养时间？',
+    opts: ['37℃48h', '37℃72h', '25℃72h', '37℃24h'],
+    ans: 1, explain: '37℃培养72小时，终止前2~4h加秋水仙素。' },
+  { id: 169, exp: 9, q: 'Giemsa染色操作顺序？',
+    opts: ['先B后A', '先A后B混合', '同时加', '只加A'],
+    ans: 1, explain: '先滴A液，再加2~3倍体积B液混匀，孵育8~10分钟。' },
+  { id: 170, exp: 9, q: '预固定的目的是？',
+    opts: ['显色', '终止低渗防止细胞过度破裂', '增加通透性', '沉淀碎片'],
+    ans: 1, explain: '加入1mL固定液终止低渗作用，防止细胞过度膨胀破裂。' },
+  // ====== 补充题：覆盖薄弱环节 ======
+  // 实验二 PCR体系补充
+  { id: 171, exp: 2, q: 'PCR反应中，模板DNA浓度对扩增特异性的影响是？',
+    opts: ['模板浓度越高特异性越好', '模板浓度在一定范围内不影响特异性', '模板浓度越低特异性越好', '模板浓度直接影响退火温度'],
+    ans: 1, explain: '模板浓度在一定范围内影响产物量，但不直接影响扩增特异性。特异性主要受引物和退火温度影响。' },
+  { id: 172, exp: 2, q: 'PCR反应中dNTPs的浓度应如何配制？',
+    opts: ['四种dNTP浓度不等，dATP多一些', '四种dNTP浓度相等且均等', '只加dATP和dTTP', 'dNTP浓度越高越好'],
+    ans: 1, explain: '四种dNTP（dATP、dTTP、dCTP、dGTP）必须等浓度配制，否则会导致碱基错配率升高。' },
+  { id: 173, exp: 2, q: '普通PCR与实时定量PCR(qPCR)的本质区别是？',
+    opts: ['qPCR使用不同的DNA聚合酶', 'qPCR可实时监测扩增过程并定量初始模板量', 'qPCR不需要引物', '普通PCR不能扩增DNA'],
+    ans: 1, explain: 'qPCR通过荧光信号实时监测扩增过程，根据Ct值定量初始模板量，而普通PCR只能进行终点检测。' },
+  { id: 174, exp: 2, q: 'PCR引物设计的基本原则是？',
+    opts: ['引物越长越好', '引物应与模板序列互补配对且避免自身互补', '引物应富含GC碱基', '上下游引物序列应完全相同'],
+    ans: 1, explain: '引物需与靶序列特异性互补，且避免引物自身形成发夹结构或引物二聚体，保证扩增特异性。' },
+  // 实验三 电泳对比补充
+  { id: 175, exp: 3, q: 'TAE缓冲液和TBE缓冲液的主要区别在于？',
+    opts: ['TAE适合长时间电泳（低电导率），TBE适合高分辨短时电泳（缓冲力强）', 'TAE只能跑RNA，TBE只能跑DNA', '两者没有区别', 'TBE比TAE更安全'],
+    ans: 0, explain: 'TAE离子强度低、电导率低、产热少，适合长时间电泳；TBE缓冲能力强，能维持稳定pH，适合高分辨率短时电泳。' },
+  { id: 176, exp: 3, q: '琼脂糖凝胶电泳中，同一块胶上不同泳道的样品间出现"微笑效应"，最可能的原因是？',
+    opts: ['样品浓度过高', '电泳时电压过高导致凝胶局部过热', '凝胶放置时间过长', '缓冲液pH过低'],
+    ans: 1, explain: '电压过高时凝胶中部产热较多，DNA迁移更快，而边缘散热好迁移较慢，形成"微笑"状弯曲条带。' },
+  { id: 177, exp: 3, q: '分离小分子DNA片段（<500bp）时，最适合选用以下哪种方案？',
+    opts: ['1%琼脂糖凝胶', '2%琼脂糖凝胶或聚丙烯酰胺凝胶', '0.5%琼脂糖凝胶', '醋酸纤维素薄膜'],
+    ans: 1, explain: '小片段DNA适合较高浓度琼脂糖凝胶（2%以上）或聚丙烯酰胺凝胶（PAGE），两者孔径小、分辨率高。' },
+  // 实验五 凝胶参数补充
+  { id: 178, exp: 5, q: '聚丙烯酰胺凝胶中，Acr与Bis的最适质量比通常为？',
+    opts: ['5:1', '10:1', '30:1', '50:1'],
+    ans: 2, explain: 'Acr:Bis=30:1时凝胶完全透明而有弹性。比例过小凝胶变硬呈乳白色，过大则呈糊状易断裂。' },
+  { id: 179, exp: 5, q: '非变性PAGE(Native-PAGE)与SDS-PAGE的主要区别是？',
+    opts: ['Native-PAGE不加入SDS，蛋白保持天然构象；SDS-PAGE使蛋白变性按分子量分离', 'Native-PAGE只能跑DNA', '两者原理完全相同', 'SDS-PAGE分辨率低于Native-PAGE'],
+    ans: 0, explain: 'Native-PAGE无SDS，蛋白保持天然构象和活性，按电荷/大小/形状分离；SDS-PAGE加SDS使蛋白变性和带均一负电荷，按分子量分离。' },
+  { id: 180, exp: 5, q: '制备PAGE凝胶时，若凝胶不凝固或聚合时间过长，最可能的原因是？',
+    opts: ['Acr浓度太高', 'AP溶液失效或TEMED加入量不足', 'Bis浓度太低', 'ddH₂O用量过多'],
+    ans: 1, explain: 'AP（过硫酸铵）需现配现用，若吸潮或过期则无法产生足够自由基；TEMED用量不足则催化加速不够，均会导致聚合缓慢或不凝固。' },
+  // 实验七 层析对比补充
+  { id: 181, exp: 7, q: '在GST融合蛋白亲和层析中，若SDS-PAGE显示纯化后的蛋白出现溶菌酶杂带（~14kDa），最可能的原因是？',
+    opts: ['GST标签与溶菌酶发生了特异性结合', '溶菌酶添加过量，在洗涤步骤中未被完全去除（非特异性残留）', '溶菌酶也是GST融合蛋白', 'GSH洗脱液浓度太低'],
+    ans: 1, explain: '溶菌酶（~14kDa）本身不含GST标签，理论上不被亲和柱特异性结合，但添加过量时因非特异性相互作用残留，增加洗涤次数可减少。' },
+  { id: 182, exp: 7, q: '离子交换层析中，改变流动相的什么条件可以洗脱吸附的蛋白质？',
+    opts: ['降低温度', '增加离子强度（盐浓度）或改变pH', '减少流速', '加入有机溶剂'],
+    ans: 1, explain: '增加离子强度（盐浓度）可竞争性替换结合在交换剂上的蛋白，改变pH可改变蛋白的电荷状态从而减弱与交换剂的结合。' },
+  { id: 183, exp: 7, q: '以下哪种蛋白质分离方法不依赖于蛋白质的分子量大小？',
+    opts: ['凝胶过滤层析', 'SDS-PAGE', '透析', '离子交换层析'],
+    ans: 3, explain: '离子交换层析基于蛋白质的电荷差异（等电点和表面电荷分布）进行分离，与分子量大小无关。凝胶过滤、SDS-PAGE和透析均基于分子大小。' },
+  // 实验八 凝胶过滤概念补充
+  { id: 184, exp: 8, q: '凝胶过滤层析中，若某个蛋白质的洗脱体积等于柱床的外水体积，说明什么？',
+    opts: ['该蛋白分子量极小', '该蛋白分子量极大，完全不能进入凝胶孔隙（在排阻极限以上）', '该蛋白与凝胶发生了吸附', '层析柱发生故障'],
+    ans: 1, explain: '洗脱体积等于外水体积表示该蛋白被排阻，分子量在凝胶的排阻极限以上，完全不能进入凝胶颗粒内部孔隙。' },
+  { id: 185, exp: 8, q: '凝胶过滤层析的脱盐应用中，大分子（如蛋白质）和小分子（如NaCl）的出峰顺序是？',
+    opts: ['小分子先出峰', '大分子先出峰，小分子后出峰', '两者同时出峰', '出峰顺序取决于温度'],
+    ans: 1, explain: '大分子（蛋白质）无法进入凝胶孔隙→路径短→先洗脱出峰；小分子（NaCl）自由进出孔隙→路径长→后洗脱出峰，实现分离。' },
+  // 实验九 补充
+  { id: 186, exp: 9, q: '人外周血淋巴细胞培养时，培养基中需加入哪些关键成分？',
+    opts: ['仅RPMI-1640和血清', 'RPMI-1640、小牛血清、PHA、肝素钠、卡那霉素（抗生素）', '仅PHA和血清', '血清和秋水仙素'],
+    ans: 1, explain: '培养基含RPMI-1640提供营养，小牛血清促进生长，PHA刺激淋巴细胞分裂，肝素钠抗凝，卡那霉素防止细菌污染。' },
+  { id: 187, exp: 9, q: '在巴氏小体观察实验中，石炭酸品红染液染色后需用盐酸酒精分色数秒，其目的是？',
+    opts: ['增强染色效果', '去除多余染料，使染色深浅适宜、背景清晰', '固定细胞形态', '使巴氏小体完全着色'],
+    ans: 1, explain: '盐酸酒精分色可去除过量结合的染料，减少背景非特异性着色，使巴氏小体在浅色背景下更清晰可辨。' },
+];
+// ====== 思维导图数据 ======
+const MIND_MAPS = {
+  1: { title: '实验一 SDS-碱裂解法提取质粒DNA', nodes: [
+    { label: '质粒概述', children: ['环状双链DNA 1kb~200kb 自主复制','载体条件:复制子/筛选标记/MCS/小分子高拷贝'].map(s=>({label:s})) },
+    { label: '核酸提取原则', children: ['保持一级结构完整(防DNase/酸碱/剪切)','去除蛋白质脂类糖类污染','弱碱性环境稳定(非酸性!)'].map(s=>({label:s})) },
+    { label: 'SDS-碱裂解原理', children: ['SDS裂解细胞膜+结合组蛋白释放DNA','NaOH(pH12)使DNA均变性','酸中和→质粒复性溶解,基因组交联沉淀'].map(s=>({label:s})) },
+    { label: '试剂作用', children: ['Buffer A活化膜|S1重悬含RNase|S2 SDS+NaOH裂解|S3酸中和|W1去蛋白|W2去盐|Eluent洗脱'].map(s=>({label:s.replace(/\|/g,' | ')})) },
+    { label: '注意要点', children: ['S2不能剧烈振荡→基因组断裂污染','S2处理<5min→否则质粒不可逆变性','酚/氯仿→DNA在上层水相'].map(s=>({label:s})) },
+    { label: '常见问题', children: ['A260/A280<1.7蛋白污染|>1.9 RNA污染','条带模糊→培养>16h降解','基因组污染→S2振荡剧烈'].map(s=>({label:s.replace(/\|/g,' | ')})) }
+  ]},
+  2: { title: '实验二 核酸纯度浓度鉴定 & PCR', nodes: [
+    { label: '紫外分光光度法', children: ['A260:核酸 A280:蛋白质(Trp/Tyr) A230:盐/酚','纯DNA A260/A280=1.8~2.0, A260/A230=2.0~2.5'].map(s=>({label:s})) },
+    { label: '浓度计算', children: ['dsDNA:A260=1→50μg/mL','ssDNA/RNA:A260=1→40μg/mL','寡核苷酸:A260=1→20μg/mL'].map(s=>({label:s})) },
+    { label: 'PCR原理', children: ['变性95℃→退火Tm-5℃→延伸72℃','指数扩增25~30循环达10⁶倍','体系:模板/引物/Taq酶/dNTPs/Mg²⁺'].map(s=>({label:s})) },
+    { label: '实时荧光PCR', children: ['SYBR Green I嵌入dsDNA发光(简便非特异)','TaqMan探针:5\'报告+3\'淬灭酶切释荧光(特异)','Ct值与初始模板量成反比'].map(s=>({label:s})) },
+    { label: '降解与问题排查', children: ['降解→A260升高→浓度虚高','无产物→引物设计错误|多条带→退火温度过低'].map(s=>({label:s.replace(/\|/g,' | ')})) }
+  ]},
+  3: { title: '实验三 核酸完整性 & PCR产物鉴定', nodes: [
+    { label: '电泳原理', children: ['DNA带负电向正极','分子筛效应:迁移率与lgMW成反比','超螺旋>线性>开环'].map(s=>({label:s})) },
+    { label: '支持介质对比', children: ['琼脂糖:孔径大0.1~50kb','PAGE:孔径小分辨率高<1kb/蛋白','醋酸纤维素薄膜'].map(s=>({label:s})) },
+    { label: '影响因素', children: ['电压过高→微笑效应(产热)','凝胶浓度高→孔径小适合小片段','TAE低电导长时/TBE高缓冲短时高分辨'].map(s=>({label:s})) },
+    { label: '上样缓冲液', children: ['甘油→沉入孔底','EDTA→螯合金属抑核酸酶','溴酚蓝(600bp)/二甲苯青(2kb)指示进度'].map(s=>({label:s})) },
+    { label: '染色方法', children: ['EB带正电向阴极嵌入DNA发荧光','SYBR Green灵敏度高','银染Ag⁺与核酸结合黑褐色用于PAGE'].map(s=>({label:s})) }
+  ]},
+  4: { title: '实验四 LDH酶活性测定', nodes: [
+    { label: '酶学概念', children: ['酶活性(U):每分钟催化1μmol底物','比活力(U/mg):代表纯度','初速度:底物消耗≤5%与酶量成正比'].map(s=>({label:s})) },
+    { label: 'LDH结构功能', children: ['含锌四聚体 M+H亚基','催化乳酸⇌丙酮酸 NAD⁺/NADH辅酶','血清正常100~250U/L'].map(s=>({label:s})) },
+    { label: '比色法测定', children: ['乳酸+NAD⁺→丙酮酸+NADH','丙酮酸+2,4-二硝基苯肼→红棕色A440','三次37℃水浴:预温/酶促/显色'].map(s=>({label:s})) },
+    { label: '对照设置', children: ['测定空白:不加NAD⁺扣样品背景','标准空白:不加丙酮酸扣试剂背景','标准管:加标准丙酮酸1μmol/mL'].map(s=>({label:s})) }
+  ]},
+  5: { title: '实验五 LDH同工酶谱分析', nodes: [
+    { label: '同工酶', children: ['催化同一反应分子结构不同','LDH1(H₄)>LDH2>LDH3>LDH4>LDH5(M₄)','H亚基酸性氨基酸多→负电荷多→迁移快'].map(s=>({label:s})) },
+    { label: '非变性PAGE', children: ['无SDS保持天然构象和活性','基于大小/形状/电荷分离','加SDS→消电荷差异+失活无法分离'].map(s=>({label:s})) },
+    { label: '凝胶聚合', children: ['AP引发剂 TEMED加速剂','Acr+Bis聚合 T%和C%决定孔径','未聚合丙烯酰胺有神经毒性!'].map(s=>({label:s})) },
+    { label: '显色与临床', children: ['NBT(黄)→Formazan(紫不溶)','心梗:LDH1/LDH2升高比值>1','肝病:LDH4/LDH5|白血病:LDH3/LDH4'].map(s=>({label:s.replace(/\|/g,' | ')})) }
+  ]},
+  6: { title: '实验六 Western Blot 免疫印迹', nodes: [
+    { label: '原理流程', children: ['抗原抗体特异性结合检测蛋白','SDS-PAGE→转膜→封闭→一抗→漂洗→二抗→漂洗→ECL显色'].map(s=>({label:s})) },
+    { label: 'SDS-PAGE参数', children: ['分离胶12% pH8.8 浓缩胶4.8% pH6.8','电泳:80V浓缩→160V分离','上样缓冲液:DTT还原二硫键+SDS负电荷'].map(s=>({label:s})) },
+    { label: '转膜与抗体', children: ['三明治:滤纸-胶-膜-滤纸(胶负膜正)','封闭:5%奶粉封非特异位点','一抗特异识别→二抗携带HRP放大信号'].map(s=>({label:s})) },
+    { label: '常见问题', children: ['高背景→封闭/抗体浓度/洗涤','二聚体→DTT不足煮沸不够','反白中空→上样量过大底物耗尽'].map(s=>({label:s})) }
+  ]},
+  7: { title: '实验七 亲和层析纯化GST融合蛋白', nodes: [
+    { label: '蛋白纯化方法', children: ['分子大小:透析/超滤/凝胶过滤','电荷:电泳/离子交换','亲和力:亲和层析(最有效)','溶解度:盐析(保持天然构象)'].map(s=>({label:s})) },
+    { label: 'GST亲和层析', children: ['GST(~26kDa)与谷胱甘肽特异性结合','GSH竞争洗脱','IPTG诱导表达'].map(s=>({label:s})) },
+    { label: '纯化步骤', children: ['裂解(溶菌酶37℃)→结合→PBS洗涤6次','GSH洗脱→SDS-PAGE鉴定','对照:未诱导无带/诱导后强带/纯化后单带'].map(s=>({label:s})) }
+  ]},
+  8: { title: '实验八 凝胶过滤层析-BSA脱盐', nodes: [
+    { label: '原理', children: ['分子筛排阻:大分子不进孔隙先洗脱','小分子进孔隙后洗脱','固定相:多孔中性凝胶 流动相:缓冲液'].map(s=>({label:s})) },
+    { label: 'BSA脱盐', children: ['BSA(66kDa)排阻极限以上→先出峰','NaCl(58Da)进孔隙→后出峰','A280监测蛋白峰 电导率监测盐峰'].map(s=>({label:s})) },
+    { label: 'Sephadex系列', children: ['G值越大→孔径越大→分离范围越大','G-50(1500~30000Da)适合小蛋白脱盐'].map(s=>({label:s})) }
+  ]},
+  9: { title: '实验九 染色体制备与观察', nodes: [
+    { label: '秋水仙素', children: ['与微管蛋白结合→抑制纺锤体→停滞中期','腹腔注射8μg/g 10~12h后取材'].map(s=>({label:s})) },
+    { label: '关键步骤', children: ['低渗0.075M KCl 37℃30min⭐→膨胀细胞','固定液甲醇:冰醋酸=3:1新鲜配制','高距离30cm滴片→冷玻片→火焰干燥'].map(s=>({label:s})) },
+    { label: '小鼠染色体', children: ['2n=40端着丝粒呈U/V型','X在5~6号间 Y最小'].map(s=>({label:s})) },
+    { label: '巴氏小体', children: ['失活X染色体紧贴核膜内侧三角形','XX:1个 XY:无 XXY:1个 XO:无'].map(s=>({label:s})) },
+    { label: '莱昂假说', children: ['雌性两条X之一随机失活','胚胎早期发生','同一细胞克隆后代保持相同模式'].map(s=>({label:s})) }
+  ]}
+};
+
+// ====== 状态管理 ======
+let state = {
+  mode: 'normal', currentIndex: 0, answered: false, questions: [],
+  searchKeyword: '', starFilterOnly: false,
+  wrongIds: new Set(), answeredIds: new Set(), deletedIds: new Set(), starredIds: new Set(),
+  correctCount: 0, wrongCount: 0, answers: {},
+};
+
+// ====== localStorage 自动保存进度 ======
+function saveState() {
+  try {
+    var data = {
+      wrongIds: Array.from(state.wrongIds),
+      answeredIds: Array.from(state.answeredIds),
+      deletedIds: Array.from(state.deletedIds),
+      starredIds: Array.from(state.starredIds),
+      answers: state.answers,
+      correctCount: state.correctCount,
+      wrongCount: state.wrongCount,
+    };
+    localStorage.setItem('cmg_quiz_state', JSON.stringify(data));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem('cmg_quiz_state');
+    if (!raw) return;
+    var data = JSON.parse(raw);
+    if (data.wrongIds) state.wrongIds = new Set(data.wrongIds);
+    if (data.answeredIds) state.answeredIds = new Set(data.answeredIds);
+    if (data.deletedIds) state.deletedIds = new Set(data.deletedIds);
+    if (data.starredIds) state.starredIds = new Set(data.starredIds);
+    if (data.answers) state.answers = data.answers;
+    if (data.correctCount) state.correctCount = data.correctCount;
+    if (data.wrongCount) state.wrongCount = data.wrongCount;
+  } catch(e) {}
+}
+
+function clearSavedState() {
+  if (!confirm('确定清除所有保存的进度（包括错题、收藏）吗？')) return;
+  localStorage.removeItem('cmg_quiz_state');
+  resetAll();
+}
+
+function getQuestionsByExp(exp) {
+  if (exp === 0) return ALL_QUESTIONS.filter(q => !state.deletedIds.has(q.id));
+  return ALL_QUESTIONS.filter(q => q.exp === exp && !state.deletedIds.has(q.id));
+}
+function shuffle(arr) { for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+// ====== 知识点标注 ======
+var KNOWLEDGE_TAGS = {
+  1: ['质粒特性','核酸提取原则','碱裂解原理','试剂作用','常见问题分析','RNA提取'],
+  2: ['紫外分光光度法','浓度计算','Nanodrop操作','PCR原理','实时荧光PCR','qPCR问题排查'],
+  3: ['电泳原理','介质对比','影响因素','上样缓冲液','染色方法','质粒构象'],
+  4: ['酶学概念','LDH结构与功能','比色法测定','对照设置','酶活计算','临床意义'],
+  5: ['同工酶概念','非变性PAGE','凝胶聚合','显色原理','临床诊断','异常分析'],
+  6: ['WB原理流程','SDS-PAGE参数','转膜方法','抗体孵育','ECL显色','常见问题'],
+  7: ['蛋白纯化方法','盐析原理','层析分类','GST亲和层析','SDS-PAGE鉴定'],
+  8: ['凝胶过滤原理','BSA脱盐','Sephadex系列','层析图分析'],
+  9: ['秋水仙素','低渗处理','固定与滴片','小鼠染色体','巴氏小体','莱昂假说','人染色体'],
+};
+function getQuestionTag(q) {
+  var tags = KNOWLEDGE_TAGS[q.exp] || ['综合'];
+  var text = q.q;
+  // 根据问题关键词匹配标签
+  if (text.match(/质粒|载体|碱裂解|SDS|溶液[IIⅢI]|Buffer/)) return tags[0];
+  if (text.match(/A₂₆₀|A₂₈₀|A₂₃₀|紫外|分光|Nanodrop|浓度|纯度/)) return tags[1];
+  if (text.match(/PCR|Ct值|TaqMan|SYBR|RT-PCR|qPCR|引物|退火/)) return tags[2];
+  if (text.match(/电泳|琼脂糖|PAGE|迁移率|溴酚蓝|EB|染色/)) return tags[0] || '电泳';
+  if (text.match(/LDH|酶活|比色法|2,4-二硝基苯肼|丙酮酸|NADH/)) return tags[0] || 'LDH';
+  if (text.match(/同工酶|非变性|Native|显色|NBT|Formazan/)) return tags[0] || '同工酶';
+  if (text.match(/Western|WB|转膜|封闭|一抗|二抗|ECL|HRP/)) return tags[0] || 'Western Blot';
+  if (text.match(/亲和|GST|谷胱甘肽|GSH|洗脱|盐析/)) return tags[0] || '亲和层析';
+  if (text.match(/凝胶过滤|Sephadex|BSA|脱盐|分子筛/)) return tags[0] || '凝胶过滤';
+  if (text.match(/秋水仙素|低渗|固定|滴片|巴氏|莱昂|染色体|核型/)) return tags[0] || '染色体制备';
+  // 按序号取模
+  return tags[q.id % tags.length] || tags[0];
+}
+
+// ====== 搜索 & 收藏筛选 ======
+function doSearch() {
+  state.searchKeyword = document.getElementById('searchInput').value.trim();
+  loadQuestions();
+}
+function toggleStarFilter() {
+  state.starFilterOnly = !state.starFilterOnly;
+  document.getElementById('starFilterBtn').style.borderColor = state.starFilterOnly ? '#f39c12' : '#d0d5dd';
+  document.getElementById('starFilterBtn').style.background = state.starFilterOnly ? '#fef5e7' : '#fff';
+  if (state.starFilterOnly && state.starredIds.size === 0) { alert('还没有收藏的题目！可以在题卡上点击 ⭐ 收藏。'); state.starFilterOnly = false; return; }
+  loadQuestions();
+}
+
+let currentExp = 0;
+
+function init() {
+  loadState();
+  const expNames = ['全部','实验一\nSDS-碱裂解法','实验二\n核酸鉴定&PCR','实验三\n电泳&PCR产物','实验四\nLDH酶活性','实验五\nLDH同工酶','实验六\nWestern Blot','实验七\n亲和层析&SDS-PAGE','实验八\n凝胶过滤层析','实验九\n染色体制备'];
+  renderExpTabs(expNames);
+  switchExp(0);
+}
+
+function renderExpTabs(expNames) {
+  if (!expNames) expNames = ['全部','实验一\nSDS-碱裂解法','实验二\n核酸鉴定&PCR','实验三\n电泳&PCR产物','实验四\nLDH酶活性','实验五\nLDH同工酶','实验六\nWestern Blot','实验七\n亲和层析&SDS-PAGE','实验八\n凝胶过滤层析','实验九\n染色体制备'];
+  const expTabs = document.getElementById('expTabs');
+  if (!expTabs) return;
+  expTabs.innerHTML = '';
+  expNames.forEach((name, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'exp-tab' + (i === currentExp ? ' active' : '');
+    var qs = getQuestionsByExp(i);
+    var answered = qs.filter(function(q){ return state.answeredIds.has(q.id); }).length;
+    var correct = qs.filter(function(q){ return state.answers[q.id] === q.ans; }).length;
+    var pct = answered > 0 ? Math.round(correct/answered*100) : -1;
+    var statStr = answered > 0 ? ' ' + correct+'/'+answered : '';
+    var pctColor = pct >= 80 ? '#27ae60' : (pct >= 50 ? '#f39c12' : '#e74c3c');
+    var pctHtml = pct >= 0 ? ' <span style="color:'+pctColor+';font-weight:700;">'+pct+'%</span>' : '';
+    tab.innerHTML = name.replace('\n','<br>') + ' <span class="q-count">(' + qs.length + '题' + statStr + pctHtml + ')</span>';
+    tab.onclick = (function(idx){ return function(){ switchExp(idx); }; })(i);
+    expTabs.appendChild(tab);
+  });
+}
+
+function renderMindMap(exp) {
+  const area = document.getElementById('mindMapArea');
+  const mapData = MIND_MAPS[exp];
+  if (!mapData) { area.style.display = 'none'; return; }
+  const icons = ['📌','🔬','🧪','⚗️','🧬','💡','📊','🎯','🔗','📝','⭐','💎'];
+  let html = '<div class="mindmap-wrap"><div class="mm-header"><h3>🧠 ' + mapData.title + ' 考点导图</h3>';
+  html += '<button class="mindmap-toggle" onclick="toggleMindMap()">📂 展开/折叠</button></div>';
+  html += '<div class="mindmap-tree" id="mindmapTree"><ul class="tree-root">';
+  mapData.nodes.forEach((n,idx) => {
+    html += '<li><div class="node-label">' + icons[idx%icons.length] + ' ' + n.label + '</div>';
+    if (n.children && n.children.length) {
+      html += '<ul class="tree-children">';
+      n.children.forEach(c => { html += '<li>' + c.label + '</li>'; });
+      html += '</ul>';
+    }
+    html += '</li>';
+  });
+  html += '</ul></div></div>';
+  if (window.innerWidth > 768) html = html.replace('mindmap-tree"','mindmap-tree open"');
+  area.innerHTML = html;
+  area.style.display = 'block';
+}
+function toggleMindMap() { var t=document.getElementById('mindmapTree'); if(t)t.classList.toggle('open'); }
+
+function switchExp(exp) {
+  currentExp = exp;
+  document.querySelectorAll('.exp-tab').forEach(function(t,i){t.classList.toggle('active',i===exp);});
+  if (state.mode !== 'wrong-retry') state.mode = 'normal';
+  renderMindMap(exp);
+  loadQuestions();
+}
+
+function loadQuestions() {
+  var pool;
+  if (state.mode === 'wrong-retry') {
+    pool = getQuestionsByExp(currentExp).filter(function(q){return state.wrongIds.has(q.id);});
+    if (pool.length === 0) { alert('当前实验没有错题！'); state.mode = 'normal'; pool = getQuestionsByExp(currentExp); }
+  } else {
+    pool = getQuestionsByExp(currentExp);
+    if (pool.length === 0) { alert('当前实验题目已全部删除！请恢复已删题目。'); return; }
+  }
+  // 搜索关键词过滤
+  if (state.searchKeyword) {
+    var kw = state.searchKeyword.toLowerCase();
+    pool = pool.filter(function(q){ return q.q.toLowerCase().indexOf(kw) >= 0 || q.explain.toLowerCase().indexOf(kw) >= 0; });
+  }
+  // 收藏筛选
+  if (state.starFilterOnly) pool = pool.filter(function(q){ return state.starredIds.has(q.id); });
+  if (pool.length === 0 && state.searchKeyword) { alert('没有匹配的题目，请换个关键词试试。'); return; }
+  if (pool.length === 0 && state.starFilterOnly) { alert('当前实验没有收藏的题目。'); state.starFilterOnly = false; document.getElementById('starFilterBtn').style.borderColor='#d0d5dd'; return; }
+  state.questions = shuffle([].concat(pool));
+  state.currentIndex = 0;
+  state.answered = false;
+  updateModeBadge();
+  renderQuestions();
+  updateStats();
+  updateProgress();
+}
+
+function renderQuestions() {
+  var area = document.getElementById('questionArea');
+  var qs = state.questions;
+  if (qs.length === 0) {
+    area.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>没有符合条件的题目</p></div>';
+    document.getElementById('completePage').classList.remove('show');
+    var oldNav = document.querySelector('.nav-btns'); if(oldNav) oldNav.remove();
+    return;
+  }
+  area.innerHTML = '';
+  qs.forEach(function(q,i){
+    var card = document.createElement('div');
+    card.className = 'question-card' + (i === state.currentIndex ? ' active' : '');
+    card.id = 'qcard-' + i;
+    var expLabel = '实验'+['','一','二','三','四','五','六','七','八','九'][q.exp];
+    var selected = state.answers[q.id];
+    var optsHtml = '';
+    q.opts.forEach(function(opt,oi){
+      var cls = 'option';
+      if (state.answered && i === state.currentIndex) {
+        cls += ' disabled';
+        if (oi === q.ans) cls += ' correct';
+        if (selected === oi && selected !== q.ans) cls += ' wrong';
+        if (selected === oi) cls += ' selected';
+      }
+      optsHtml += '<div class="'+cls+'" onclick="selectOption('+i+','+oi+')">'+String.fromCharCode(65+oi)+'. '+opt+'</div>';
+    });
+    var isStarred = state.starredIds.has(q.id);
+    var tag = getQuestionTag(q);
+    var starBtn = '<span class="star-btn" onclick="toggleStar('+i+')" style="cursor:pointer;font-size:16px;touch-action:manipulation;user-select:none;'+(isStarred?'color:#f39c12;':'color:#ccc;')+'">'+(isStarred?'⭐':'☆')+'</span>';
+    // 反馈区：仅当前答题时显示，翻页后清空
+    var fbVisible = 'hidden';
+    var fbContent = '<div class="feedback-inner fb-placeholder"><div class="fb-title">📝 选择答案后显示解析</div></div>';
+    var retip = '';
+    if (state.answered && i === state.currentIndex) {
+      fbVisible = 'visible';
+      var isAnsCorrect = selected === q.ans;
+      fbContent = '<div class="feedback-inner '+(isAnsCorrect?'fb-correct':'fb-wrong')+'"><div class="fb-title">'+(isAnsCorrect?'✅ 回答正确！':'❌ 回答错误  正确答案：'+String.fromCharCode(65+q.ans))+'</div><div class="fb-explain">'+q.explain+'</div></div><div class="fb-retip">💡 点击选项可重新答题</div>';
+    }
+    card.innerHTML = '<div class="q-header"><span class="q-number">第'+(i+1)+'/'+qs.length+'题</span><span>'+starBtn+' <span class="q-exp-label" style="margin-right:4px;">'+expLabel+'</span><span class="q-exp-label" style="background:#e8f0fe;color:#1a3c6e;margin-right:4px;">#'+tag+'</span><span class="del-btn" onclick="deleteQuestion('+i+')" style="cursor:pointer;color:#e74c3c;font-size:13px;background:#fdedec;padding:2px 10px;border-radius:10px;touch-action:manipulation;user-select:none;margin-left:4px;">✕ 删除</span></span></div><div class="q-text">'+q.q+'</div><div class="options">'+optsHtml+'</div><div class="feedback" id="fb-'+i+'" style="visibility:'+fbVisible+'">'+fbContent+'</div>';
+    area.appendChild(card);
+  });
+  var oldNav = document.querySelector('.nav-btns'); if(oldNav) oldNav.remove();
+  var nav = document.createElement('div'); nav.className = 'nav-btns';
+  nav.innerHTML = '<button class="btn btn-outline" onclick="prevQuestion()" id="prevBtn">⬅ 上一题</button><button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">下一题 ➡</button>';
+  area.appendChild(nav);
+  updateNavButtons();
+  updateProgress();
+  document.getElementById('completePage').classList.remove('show');
+  var ac = document.querySelector('.question-card.active');
+  if(ac) ac.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function selectOption(qIndex, optIndex) {
+  var q = state.questions[qIndex];
+  var card = document.getElementById('qcard-'+qIndex);
+  if (!q || !card) return;
+
+  // 如果此题已答过 → 清除旧记录（支持重新答题）
+  if (state.answeredIds.has(q.id)) {
+    var oldAns = state.answers[q.id];
+    if (oldAns !== undefined) {
+      if (oldAns === q.ans) state.correctCount--;
+      else { state.wrongCount--; state.wrongIds.delete(q.id); }
+    }
+    delete state.answers[q.id];
+    state.answeredIds.delete(q.id);
+    // 还原选项样式
+    var oldOpts = card.querySelectorAll('.option');
+    oldOpts.forEach(function(o){ o.classList.remove('disabled','selected','correct','wrong'); });
+    // 还原反馈区为占位
+    var oldFb = document.getElementById('fb-'+qIndex);
+    if (oldFb) {
+      oldFb.style.visibility = 'hidden';
+      oldFb.innerHTML = '<div class="feedback-inner fb-placeholder"><div class="fb-title">📝 选择答案后显示解析</div></div>';
+    }
+  }
+
+  // 标记为已答（但允许重答时先把 answered 设 false 再继续）
+  state.answered = true;
+  state.answeredIds.add(q.id);
+  state.answers[q.id] = optIndex;
+
+  // 选项样式
+  var opts = card.querySelectorAll('.option');
+  opts.forEach(function(o,i){
+    o.classList.add('disabled');
+    if(i===optIndex) o.classList.add('selected');
+    if(i===q.ans) o.classList.add('correct');
+    if(i===optIndex&&i!==q.ans) o.classList.add('wrong');
+  });
+
+  if (optIndex === q.ans) { state.correctCount++; } else { state.wrongCount++; state.wrongIds.add(q.id); }
+
+  // 反馈区
+  var fb = document.getElementById('fb-'+qIndex);
+  if (fb) {
+    fb.style.visibility = 'visible';
+    var isRight = optIndex === q.ans;
+    fb.innerHTML = '<div class="feedback-inner '+(isRight?'fb-correct':'fb-wrong')+'"><div class="fb-title">'+(isRight?'✅ 回答正确！':'❌ 回答错误  正确答案：'+String.fromCharCode(65+q.ans))+'</div><div class="fb-explain">'+q.explain+'</div></div><div class="fb-retip">💡 点击选项可重新答题</div>';
+  }
+  saveState();
+  updateStats();
+  updateNavButtons();
+  updateProgress();
+}
+
+function toggleStar(qIndex) {
+  var q = state.questions[qIndex];
+  if (!q) return;
+  if (state.starredIds.has(q.id)) state.starredIds.delete(q.id); else state.starredIds.add(q.id);
+  saveState();
+  renderQuestions();
+}
+
+function goToQuestion(index) {
+  if (index<0||index>=state.questions.length) return;
+  document.querySelectorAll('.question-card').forEach(function(c){c.classList.remove('active');});
+  var card = document.getElementById('qcard-'+index);
+  if (card) { card.classList.add('active'); card.scrollIntoView({behavior:'smooth',block:'start'}); }
+  state.currentIndex = index;
+  // 翻页后不保留答题状态，每次都像新题一样
+  state.answered = false;
+  updateNavButtons();
+  updateProgress();
+}
+function prevQuestion() { if(state.currentIndex>0) goToQuestion(state.currentIndex-1); }
+function nextQuestion() { if(state.currentIndex<state.questions.length-1) goToQuestion(state.currentIndex+1); else showComplete(); }
+
+function showComplete() {
+  document.querySelectorAll('.question-card').forEach(function(c){c.classList.remove('active');});
+  var nav=document.querySelector('.nav-btns'); if(nav)nav.remove();
+  var cp = document.getElementById('completePage');
+  cp.classList.add('show');
+  var total = state.correctCount+state.wrongCount;
+  var pct = total>0 ? Math.round(state.correctCount/total*100) : 0;
+  document.getElementById('finalScore').textContent = pct+'%';
+  document.getElementById('finalDetail').innerHTML = '共答题 <strong>'+total+'</strong> 题 | 正确 <strong style="color:#27ae60">'+state.correctCount+'</strong> 题 | 错误 <strong style="color:#e74c3c">'+state.wrongCount+'</strong> 题'+(state.wrongIds.size>0?'<br>📕 有 '+state.wrongIds.size+' 道错题，建议"错题重做"巩固！':'<br>🎉 全部正确！');
+  document.getElementById('retryBtnFinal').disabled = state.wrongIds.size===0;
+}
+
+function deleteQuestion(qIndex) {
+  var q = state.questions[qIndex];
+  if(!q||!confirm('确定删除此题？\n\n'+q.q)) return;
+  state.deletedIds.add(q.id);
+  if(state.answers[q.id]!==undefined) {
+    if(state.answers[q.id]===q.ans) state.correctCount--;
+    else { state.wrongCount--; state.wrongIds.delete(q.id); }
+    delete state.answers[q.id];
+    state.answeredIds.delete(q.id);
+  }
+  loadQuestions();
+  saveState();
+  document.querySelectorAll('.exp-tab').forEach(function(t,i){ var qc=getQuestionsByExp(i).length; t.innerHTML=t.innerHTML.replace(/\(\d+题\)/,'('+qc+'题)'); });
+}
+
+function restoreDeleted() {
+  if(state.deletedIds.size===0) return;
+  if(!confirm('确定恢复所有已删除的 '+state.deletedIds.size+' 道题目？')) return;
+  state.deletedIds.clear();
+  document.querySelectorAll('.exp-tab').forEach(function(t,i){ var qc=getQuestionsByExp(i).length; t.innerHTML=t.innerHTML.replace(/\(\d+题\)/,'('+qc+'题)'); });
+  loadQuestions();
+  saveState();
+}
+
+function updateNavButtons() {
+  var p=document.getElementById('prevBtn'); var n=document.getElementById('nextBtn');
+  if(p)p.disabled=state.currentIndex===0;
+  if(n)n.textContent=state.currentIndex<state.questions.length-1?'下一题 ➡':'🏁 完成答题';
+}
+function updateStats() {
+  var t=state.correctCount+state.wrongCount;
+  document.getElementById('progressStats').textContent=t+'/'+(ALL_QUESTIONS.length-state.deletedIds.size);
+  document.getElementById('correctCount').textContent=state.correctCount;
+  document.getElementById('wrongCount').textContent=state.wrongCount;
+  document.getElementById('wrongBookCount').textContent=state.wrongIds.size;
+  document.getElementById('retryBtn').disabled=state.wrongIds.size===0;
+  document.getElementById('deletedCount').textContent=state.deletedIds.size;
+  document.getElementById('restoreBtn').style.display=state.deletedIds.size>0?'inline-block':'none';
+  renderExpTabs();
+}
+function updateProgress() { document.getElementById('progressBar').style.width=Math.min(100,(state.correctCount+state.wrongCount)/ALL_QUESTIONS.length*100)+'%'; }
+function updateModeBadge() {
+  var b=document.getElementById('modeBadge');
+  b.innerHTML=state.mode==='wrong-retry'?'<span class="wrong-mode">🔄 错题重做模式 — 共 '+state.questions.length+' 道错题</span>':'<span class="normal-mode">📖 全部题目模式</span>';
+}
+
+function showWrongBook() {
+  document.getElementById('wrongBookModal').classList.add('show');
+  var content = document.getElementById('wrongBookContent');
+  if(state.wrongIds.size===0) { content.innerHTML='<div class="empty-state"><div class="icon">🎉</div><p>暂无错题！</p></div>'; return; }
+  var wrongQs = ALL_QUESTIONS.filter(function(q){return state.wrongIds.has(q.id)&&!state.deletedIds.has(q.id);});
+  var html='<p style="margin-bottom:12px;color:#666;">共 '+wrongQs.length+' 道错题</p>';
+  wrongQs.forEach(function(q,i){
+    var expLabel='实验'+['','一','二','三','四','五','六','七','八','九'][q.exp];
+    var ua=state.answers[q.id]; var uaL=ua!==undefined?String.fromCharCode(65+ua):'未答'; var uaT=ua!==undefined?q.opts[ua]:'';
+    var caL=String.fromCharCode(65+q.ans); var caT=q.opts[q.ans];
+    html+='<div class="wrong-item"><div class="wi-q">'+(i+1)+'. ['+expLabel+'] '+q.q+'</div><div class="wi-detail">你的答案: <span class="your-ans">'+uaL+'. '+uaT+'</span></div><div class="wi-detail">正确答案: <span class="correct-ans">'+caL+'. '+caT+'</span></div><div style="font-size:13px;color:#666;margin-top:6px;padding:8px 10px;background:#f8f9fa;border-radius:6px;">📖 '+q.explain+'</div></div>';
+  });
+  content.innerHTML=html;
+}
+function closeWrongBook() { document.getElementById('wrongBookModal').classList.remove('show'); }
+function startWrongRetry() {
+  if(state.wrongIds.size===0) { alert('没有错题！'); return; }
+  state.mode='wrong-retry';
+  loadQuestions();
+}
+function resetAll() {
+  if(!confirm('确定重新开始？所有进度和被删题目都将恢复。')) return;
+  state.mode='normal'; state.answeredIds=new Set(); state.wrongIds=new Set(); state.deletedIds=new Set(); state.starredIds=new Set();
+  state.correctCount=0; state.wrongCount=0; state.answers={}; state.answered=false;
+  localStorage.removeItem('cmg_quiz_state');
+  document.querySelectorAll('.exp-tab').forEach(function(t,i){ var qc=getQuestionsByExp(i).length; t.innerHTML=t.innerHTML.replace(/\(\d+题\)/,'('+qc+'题)'); });
+  loadQuestions(); updateStats(); updateProgress();
+  document.getElementById('completePage').classList.remove('show');
+}
+
+document.getElementById('wrongBookModal').addEventListener('click',function(e){if(e.target===this)closeWrongBook();});
+
+// 移动端滑动手势
+(function(){
+  var tx=0;
+  document.addEventListener('touchstart',function(e){tx=e.changedTouches[0].screenX;},{passive:true});
+  document.addEventListener('touchend',function(e){
+    var ac=document.querySelector('.question-card.active'); if(!ac||e.target.closest('.option')||e.target.closest('.del-btn')||e.target.closest('.btn'))return;
+    var d=tx-e.changedTouches[0].screenX;
+    if(Math.abs(d)>60){ if(d>0&&state.currentIndex<state.questions.length-1) nextQuestion(); else if(d<0&&state.currentIndex>0) prevQuestion(); }
+  },{passive:true});
+})();
+
+init();
+</script>
+</body>
+</html>
