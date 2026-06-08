@@ -1291,8 +1291,16 @@ function resetAll() {
 
 document.getElementById('wrongBookModal').addEventListener('click',function(e){if(e.target===this)closeWrongBook();});
 
-// 滑动切题已移除（改用按钮翻题，避免误触）
-
+// 移动端滑动手势
+(function(){
+  var tx=0;
+  document.addEventListener('touchstart',function(e){tx=e.changedTouches[0].screenX;},{passive:true});
+  document.addEventListener('touchend',function(e){
+    var ac=document.querySelector('.question-card.active'); if(!ac||e.target.closest('.option')||e.target.closest('.del-btn')||e.target.closest('.btn'))return;
+    var d=tx-e.changedTouches[0].screenX;
+    if(Math.abs(d)>60){ if(d>0&&state.currentIndex<state.questions.length-1) nextQuestion(); else if(d<0&&state.currentIndex>0) prevQuestion(); }
+  },{passive:true});
+})();
 
 init();
 </script>
