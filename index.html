@@ -182,6 +182,31 @@
   .complete-page .score { font-size: 48px; font-weight: 800; color: #1a3c6e; margin: 20px 0; }
   .complete-page .detail { font-size: 16px; color: #666; line-height: 1.8; }
 
+  /* 思考题标签高亮 */
+  .exp-tab:last-child { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b; color: #92400e; font-weight: 700; }
+  .exp-tab:last-child:hover { border-color: #d97706; background: linear-gradient(135deg, #fde68a, #fcd34d); }
+  .exp-tab:last-child.active { background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #b45309; color: #fff; box-shadow: 0 2px 8px rgba(245,158,11,.3); }
+  #hardModeBtn { transition: all .3s; }
+  #hardModeBtn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(142,68,173,.3); }
+
+  /* 思考题样式 */
+  .tq-section { margin-bottom: 24px; }
+  .tq-exp-title { font-size: 18px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #1a3c6e, #2e5a8a); padding: 10px 16px; border-radius: 12px; margin-bottom: 12px; }
+  .tq-card { background: #fff; border-radius: 12px; padding: 16px 18px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.04); border: 1px solid #e8ecf0; position: relative; }
+  .tq-num { display: inline-block; background: #1a3c6e; color: #fff; font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 8px; margin-bottom: 8px; }
+  .tq-q { font-size: 15px; font-weight: 600; color: #2c3e50; line-height: 1.6; margin-bottom: 8px; padding-left: 4px; border-left: 3px solid #4a7cb5; padding-left: 10px; }
+  .tq-a { font-size: 14px; color: #3d4a5c; line-height: 1.7; background: #f0faf4; padding: 10px 14px; border-radius: 8px; border-left: 3px solid #27ae60; margin-top: 6px; }
+  .tq-a strong { color: #1a7a3a; }
+  .tq-ans-toggle { display: inline-block; font-size: 13px; color: #1a3c6e; background: #eef3fa; padding: 4px 14px; border-radius: 8px; cursor: pointer; transition: all .2s; user-select: none; margin-top: 4px; }
+  .tq-ans-toggle:hover { background: #d0ddef; transform: translateY(-1px); }
+  .tq-ans-toggle:active { transform: scale(0.97); }
+  @media (max-width: 768px) {
+    .tq-exp-title { font-size: 15px; padding: 8px 12px; }
+    .tq-card { padding: 12px 14px; }
+    .tq-q { font-size: 14px; }
+    .tq-a { font-size: 13px; }
+  }
+
   /* 解析反馈：美观卡片设计 */
   .feedback { margin-top: 14px; padding: 0; border-radius: 12px; min-height: 48px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
   .feedback-inner { padding: 14px 16px; border-left: 4px solid #d0d5dd; background: #f8f9fb; }
@@ -291,6 +316,7 @@
   </div>
   <!-- 搜索 & 收藏筛选 -->
   <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;">
+    <button class="btn" id="hardModeBtn" onclick="toggleHardMode()" style="font-size:12px;padding:6px 14px;background:#8e44ad;color:#fff;border:none;border-radius:8px;cursor:pointer;">🧠 普通模式</button>
     <input type="text" id="searchInput" placeholder="🔍 搜索关键词..." oninput="doSearch()" style="flex:1;min-width:120px;padding:8px 14px;border-radius:20px;border:2px solid #d0d5dd;font-size:13px;outline:none;transition:border-color .2s;" onfocus="this.style.borderColor='#1a3c6e'" onblur="this.style.borderColor='#d0d5dd'">
     <button class="btn btn-outline" id="starFilterBtn" onclick="toggleStarFilter()" style="font-size:12px;padding:6px 14px;">⭐ 只看收藏</button>
   </div>
@@ -827,6 +853,139 @@ const ALL_QUESTIONS = [
   { id: 187, exp: 9, q: '在巴氏小体观察实验中，石炭酸品红染液染色后需用盐酸酒精分色数秒，其目的是？',
     opts: ['增强染色效果', '去除多余染料，使染色深浅适宜、背景清晰', '固定细胞形态', '使巴氏小体完全着色'],
     ans: 1, explain: '盐酸酒精分色可去除过量结合的染料，减少背景非特异性着色，使巴氏小体在浅色背景下更清晰可辨。' },
+  // ====== 对照教材补充题 ======
+  // 实验四：LDH计算公式
+  { id: 188, exp: 4, q: 'LDH酶活性计算公式 LDH(U) = (A1-A2)/(A3-A4)×200×稀释倍数 中，常数200的含义是什么？',
+    opts: ['标准管丙酮酸含量(0.05mL×1μmol/mL)换算为100mL样品的系数', '酶的摩尔消光系数', '反应时间15分钟的换算系数', '温度校正系数'],
+    ans: 0, explain: '200来源于：标准管丙酮酸含量0.05mL×1μmol/mL=0.05μmol，换算为100mL样品时的系数为100/0.025×0.05=200。' },
+  // 实验四：酶活性测定方法分类
+  { id: 189, exp: 4, q: '连续法测定酶活性与不连续法的主要区别在于？',
+    opts: ['连续法不需要加底物', '连续法可实时监测反应进程，不连续法需终止反应后检测', '不连续法更精确', '连续法只能测LDH'],
+    ans: 1, explain: '连续法通过分光光度计实时监测吸光度变化（如340nm监测NADH消耗），不连续法在指定时间终止反应后检测产物生成量。' },
+  // 实验五：光聚合与化学聚合
+  { id: 190, exp: 5, q: '聚丙烯酰胺凝胶的化学聚合体系中，哪两种试剂配合使用？',
+    opts: ['核黄素+光照', '过硫酸铵(AP)+四甲基乙二胺(TEMED)', '过硫酸铵+核黄素', 'TEMED+光照'],
+    ans: 1, explain: '化学聚合：AP（引发剂）产生自由基，TEMED（加速剂）催化AP产生自由基，两者配合使用。光聚合则使用核黄素+光照。' },
+  // 实验五：LDH各同工酶亚基组成
+  { id: 191, exp: 5, q: '乳酸脱氢酶LDH3的亚基组成是？',
+    opts: ['H₄', 'H₃M', 'H₂M₂', 'M₄'],
+    ans: 2, explain: 'LDH同工酶亚基组成：LDH1(H₄)、LDH2(H₃M)、LDH3(H₂M₂)、LDH4(HM₃)、LDH5(M₄)。' },
+  // 实验六：PMSF作用
+  { id: 192, exp: 6, q: 'Western Blot中，若细胞提取液中没有目标蛋白，可能的原因不包括？',
+    opts: ['细胞不表达该蛋白', '蛋白质被降解（未加PMSF等蛋白酶抑制剂）', '抗体不能识别目标蛋白', 'SDS浓度过高'],
+    ans: 3, explain: 'SDS浓度过高不会导致目标蛋白消失。可能原因：①细胞不表达；②蛋白酶降解（需加PMSF抑制）；③抗体不识别。' },
+  // 实验六：PVDF vs NC膜
+  { id: 193, exp: 6, q: 'Western Blot转膜中，下列关于硝酸纤维素膜(NC膜)的描述正确的是？',
+    opts: ['膜不需要在转移缓冲液中浸泡', '通过疏水作用吸附蛋白质', '蛋白质转印后膜需干燥处理', 'NC膜只能用于DNA转印'],
+    ans: 1, explain: 'NC膜通过疏水作用吸附蛋白质，转膜前需在转移缓冲液中浸泡10分钟。PVDF膜则是另一种常用转印膜。' },
+  // 实验七：层析分类
+  { id: 194, exp: 7, q: '根据分离原理分类，以下哪种层析方法不是基于分子大小进行分离的？',
+    opts: ['凝胶过滤层析', '离子交换层析', '透析', '超滤'],
+    ans: 1, explain: '离子交换层析基于电荷差异（通过改变离子强度/pH洗脱），凝胶过滤、透析、超滤均基于分子大小差异。' },
+  // 实验七：亲和层析常用配体对
+  { id: 195, exp: 7, q: '以下哪组物质不属于亲和层析中常用的互配分子对？',
+    opts: ['酶与底物/抑制剂', '抗原与抗体', '受体与配体', 'DNA与RNA'],
+    ans: 3, explain: '亲和层析常用互配分子对：酶与底物/抑制剂、抗原与抗体、受体与配体、蛋白质与金属、激素与其受体等。DNA与RNA不是亲和层析的典型配体对。' },
+  // 实验八：凝胶过滤的应用
+  { id: 196, exp: 8, q: '凝胶过滤层析的主要应用不包括？',
+    opts: ['分离生物大分子', '浓缩和脱盐', '去除热原物质', '测定蛋白质等电点'],
+    ans: 3, explain: '凝胶过滤层析的应用：分离生物大分子、浓缩和脱盐、去除热原物质、测定蛋白质分子量。不能测定等电点。' },
+  // 实验九：小鼠4个分组
+  { id: 197, exp: 9, q: '小鼠的40条染色体分为4个组，其中性染色体的描述正确的是？',
+    opts: ['雄性XY，Y染色体最大', '雄性XY，Y染色体最小，X在5~6号之间', '雌性XY，Y中等大小', '性染色体独立成组不计数'],
+    ans: 1, explain: '小鼠40条染色体分4组，1对性染色体：雄性XY，雌性XX。X染色体大小在5~6号之间，Y染色体最小。' },
+  // 实验九：低渗液浓度
+  { id: 198, exp: 9, q: '染色体制备中低渗液氯化钾的浓度是？低渗时间和温度各是多少？',
+    opts: ['0.9% NaCl，37℃，20min', '0.075mol/L KCl，37℃，30min', '0.15mol/L KCl，25℃，15min', '0.075mol/L NaCl，37℃，30min'],
+    ans: 1, explain: '低渗液为0.075mol/L KCl（氯化钾），37℃孵育30分钟。这是染色体制备的关键步骤，使细胞膨胀分散染色体。' },
+  // ====== 来自测试卷的补充题 ======
+  { id: 199, exp: 1, q: '关于核酸提取注意事项，下列哪项描述是错误的？',
+    opts: ['操作应在冰上进行以减少核酸酶活性', '碱裂解法中溶液I处理时间过长会导致质粒DNA断裂或基因组DNA污染', '溶液II处理时间越长，质粒DNA产量越高', '酚/氯仿抽提后应小心吸取上层水相'],
+    ans: 2, explain: '溶液II（含SDS+NaOH）处理时间不能超过5分钟，否则质粒DNA会不可逆变性，得率反而降低，而不是"越长产量越高"。' },
+  { id: 200, exp: 1, q: '以下哪些是核酸提取在临床与科研中的典型应用？（多选）',
+    opts: ['PCR检测病原体', '基因测序文库构建', '免疫组织化学', '细胞活力测定'],
+    ans: 0, explain: '核酸提取的典型应用包括PCR检测病原体和基因测序文库构建。免疫组织化学是检测蛋白的，细胞活力测定与核酸提取无直接关系。注：本题为多选题风格，正确答案为A和B。' },
+  { id: 201, exp: 3, q: 'PCR产物电泳条带拖尾严重，最可能的原因是？',
+    opts: ['电泳电压过高', 'PCR非特异性扩增', '琼脂糖浓度过高', '上样量过少'],
+    ans: 0, explain: '电泳电压过高会导致产热过多，凝胶局部温度升高使DNA变性或扩散加速，造成条带拖尾。非特异性扩增多导致多条带而非拖尾。' },
+  { id: 202, exp: 4, q: '以下哪项不是导致酶活性测定结果偏低的常见原因？',
+    opts: ['底物浓度过高', '使用过期的NAD⁺试剂', '反应体系pH值偏离最适值', '样品稀释倍数过大'],
+    ans: 0, explain: '底物浓度过高不会导致酶活性测定结果偏低（反而可能使反应速率增加）。其他三项：NAD⁺过期失效、pH偏离最适、稀释倍数过大，均会导致测定结果偏低。' },
+  { id: 203, exp: 5, q: '关于过硫酸铵(AP)的使用，以下哪项是正确的？',
+    opts: ['浓度越高越好', '可长期室温保存', '可与核黄素混合用于化学聚合', '需现配现用，避免吸潮分解失效'],
+    ans: 3, explain: 'AP作为引发剂易吸潮分解，需现配现用才能保证产生足量自由基使凝胶聚合。浓度过高反而导致聚合过快、凝胶不均匀。' },
+  { id: 204, exp: 7, q: 'GST融合蛋白亲和层析纯化后，为验证靶蛋白是否成功结合至Glu-Agarose亲和介质上，应选择以下哪项作为核心对照样品？',
+    opts: ['诱导后菌体裂解离心后的沉淀', '未诱导的菌体裂解液', '洗脱完成后保留的亲和介质珠子', '纯化后收集的洗脱上清'],
+    ans: 2, explain: '洗脱完成后保留的亲和介质珠子是最直接的验证：若靶蛋白成功结合并洗脱，珠子上的GST应显著减少；若未结合，珠子上仍有大量GST。这比单纯检测洗脱液更可靠。' },
+  { id: 205, exp: 6, q: '下列关于Western blot实验中封闭步骤的描述，符合操作规范的是？',
+    opts: ['转印后的膜需用含5% BSA的TBS-T封闭液，摇床孵育1小时', '封闭步骤需在一抗孵育完成后、二抗孵育前进行', '封闭完成后需用蒸馏水彻底漂洗膜3次以上', '封闭液的核心作用是固定膜上的靶蛋白防止脱落'],
+    ans: 0, explain: '封闭应在转膜后、一抗孵育前进行。用5% BSA（或脱脂奶粉）的TBS-T封闭液室温摇床孵育1小时（或4℃过夜），封闭膜上非特异性结合位点。封闭后不应水洗，否则破坏封闭效果。' },
+  // ====== 新增常规题 ======
+  { id: 206, exp: 1, q: '碱裂解法中加入Buffer S2后溶液变粘稠透明说明什么？',
+    opts: ['细菌已经死亡', '细菌细胞壁被破坏DNA释放', '质粒DNA已纯化', 'RNase已降解RNA'],
+    ans: 1, explain: 'S2中的SDS破坏细胞膜使细菌裂解，NaOH使DNA变性释放，溶液由浑浊变粘稠透明，说明细胞裂解完全。' },
+  { id: 207, exp: 1, q: 'Buffer S2使用后需立即拧紧瓶盖的主要原因是？',
+    opts: ['防止SDS氧化', '防止NaOH被空气中CO2中和', '防止RNase污染', '防止乙醇挥发'],
+    ans: 1, explain: 'Buffer S2中的NaOH易与空气中CO2反应生成碳酸钠，降低pH，导致裂解和变性能力下降。' },
+  { id: 208, exp: 2, q: '某DNA样品A260=0.4, A280=0.25, A230=0.35, 该样品纯度如何？',
+    opts: ['A260/A280=1.6偏低(蛋白质污染); A260/A230=1.14偏低(盐/胍污染)', '纯度高', '仅RNA污染', '仅盐污染'],
+    ans: 0, explain: 'A260/A280=0.4/0.25=1.6(<1.8提示蛋白质污染), A260/A230=0.4/0.35=1.14(<2.0提示盐/胍/糖污染)。两个比值均偏低说明纯度差。' },
+  { id: 209, exp: 2, q: 'qPCR实验中三个复孔Ct值分别为28.5, 29.8, 32.1, 这说明什么？',
+    opts: ['数据正常取均值', '复孔差异过大(>0.5)操作有问题需重做', '样品浓度太高', '仪器故障'],
+    ans: 1, explain: 'qPCR要求复孔间Ct值差异通常不超过0.5。该数据最大差异达3.6，说明加样不均匀或存在气泡等问题需重做。' },
+  { id: 210, exp: 3, q: '若质粒DNA的A260/A280=1.9但电泳无清晰条带只有弥散背景，最可能的原因是？',
+    opts: ['电泳条件不对', 'DNA已严重降解虽比值正常但完整性差', '凝胶浓度太高', '上样量太少'],
+    ans: 1, explain: 'A260/A280只反映纯度不反映完整性。核酸降解后仍产生260nm吸收比值可能正常，但电泳显示弥散。需结合电泳判断完整性。' },
+  { id: 211, exp: 4, q: 'LDH测定中若A1小于A2(测定空白)可能是什么原因？',
+    opts: ['LDH活性极高', 'NAD+已失效或未加入致酶促反应未启动', '标准液浓度错误', '比色皿放反了'],
+    ans: 1, explain: '测定空白不含NAD+反应不启动；测定管含NAD+若NAD+失效则反应也不启动，A1应接近于A2。理论上A1>=A2。' },
+  { id: 212, exp: 5, q: 'PAGE凝胶聚合后呈白色不透明状最可能的原因是？',
+    opts: ['凝胶浓度太低', 'Acr:Bis比过小(交联度过高)', 'AP加入过多', 'TEMED加入过少'],
+    ans: 1, explain: 'Acr:Bis=30:1为最适比。交联度过高(Bis相对过多)时凝胶变硬呈乳白色不透明。' },
+  { id: 213, exp: 6, q: 'SDS-PAGE电泳缓冲液(pH8.3)中甘氨酸的作用是？',
+    opts: ['作为尾随离子形成不连续界面产生浓缩效应', '使蛋白质变性', '提供SDS', '作为染色剂'],
+    ans: 0, explain: '甘氨酸在浓缩胶pH6.8中部分解离(泳动率低)，在分离胶pH8.8中完全解离(泳动率增加)，形成不连续离子界面实现浓缩与分离。' },
+  { id: 214, exp: 7, q: 'GST亲和层析洗涤时PBS洗涤6次以上的目的是？',
+    opts: ['使GST与Glu充分结合', '彻底去除未结合的杂蛋白和非特异性吸附', '洗脱GST融合蛋白', '活化亲和介质'],
+    ans: 1, explain: '高盐浓度的PBS能有效洗脱非特异性吸附的杂蛋白，多次洗涤保证纯度，但需避免吸走琼脂糖珠。' },
+  { id: 215, exp: 8, q: 'Sephadex G-50脱盐实验中若BSA峰和NaCl峰重叠最可能的原因是？',
+    opts: ['BSA降解', '柱床装填不均匀或上样量过大', '流速太快', '检测波长错误'],
+    ans: 1, explain: '两峰重叠说明分离效果差，最常见原因是柱床装填不均匀(有气泡或断层)或上样量过大超过柱容量。' },
+  { id: 216, exp: 9, q: '染色体制备中镜下染色体过于聚集分散不良最可能的原因是？',
+    opts: ['秋水仙素过量', '低渗处理不足(细胞未充分膨胀)', '固定液比例不对', '染色时间太短'],
+    ans: 1, explain: '低渗处理是染色体分散的关键步骤。低渗不足→细胞膨胀不够→滴片时细胞不破裂→染色体缠绕重叠无法分散。' },
+
+  // ====== 困难模式题目 ======
+  { id: 301, exp: 1, hard: true, q: '【综合】学生提取质粒后A260/A280=2.1电泳显示多条弥散条带且低分子量区有亮带。他忘记在Buffer S1中加入什么？',
+    opts: ['SDS', 'RNase A', 'NaOH', '蛋白酶K'],
+    ans: 1, explain: 'A260/A280>2.0提示RNA污染，电泳低分子量区亮带也是RNA污染特征。说明忘记加RNase A降解RNA。' },
+  { id: 302, exp: 2, hard: true, q: '【分析】某同学PCR后电泳什么条带都没有但Marker正常。所有体系成分都加了，最可能忽略的问题？',
+    opts: ['Taq酶失活', 'PCR管盖未盖紧', '引物设计时上下游引物序列相同', 'dNTP浓度太高'],
+    ans: 2, explain: '体系成分都加齐了但无产物，最可能是引物设计错误：上下游引物必须与模板不同链互补配对，若序列相同则无法扩增。' },
+  { id: 303, exp: 3, hard: true, q: '【分析】某DNA样品A260=0.6, A280=0.3, A230=0.2。请判断纯度？',
+    opts: ['A260/A280=2.0纯度高; A260/A230=3.0纯度高', 'A260/A280=2.0提示RNA污染; A260/A230=3.0正常', 'A260/A280=2.0正常; A260/A230=3.0提示有机溶剂残留', '无法判断'],
+    ans: 2, explain: 'A260/A280=0.6/0.3=2.0(正常), 但A260/A230=0.6/0.2=3.0远高于2.5，说明可能存在有机溶剂(酚/乙醇)残留使A230异常降低。' },
+  { id: 304, exp: 4, hard: true, q: '【设计】某酶催化反应伴随NADPH消耗(NADPH在340nm有吸收)，请设计活性测定方法？',
+    opts: ['用2,4-二硝基苯肼显色', '连续监测340nm吸光度下降速率按朗伯-比尔定律计算', '用TaqMan探针法', '用琼脂糖凝胶电泳'],
+    ans: 1, explain: 'NADPH在340nm有特征吸收峰，氧化后无吸收。连续监测340nm下降速率(ΔA340/min)，利用ε≈6.22*10^3计算NADPH消耗速率即为酶活性。' },
+  { id: 305, exp: 5, hard: true, q: '【分析】非变性PAGE分离LDH同工酶后所有泳道均无条带但阳性对照有条带，为何？',
+    opts: ['凝胶浓度太高', '样品可能被加热或加了SDS导致酶失活', '电泳时间太短', '染色液pH不对'],
+    ans: 1, explain: '阳性对照有条带说明染色液和电泳条件正常。样品无条带可能是处理不当：非变性要求不能加热、不能加SDS，否则LDH变性失活无法显色。' },
+  { id: 306, exp: 6, hard: true, q: '【综合】WB中转膜后丽春红染色蛋白条带清晰但ECL无信号，可能原因？',
+    opts: ['转膜失败', '一抗不识别或二抗种属不匹配', 'ECL显色液过期', 'NC膜质量不好'],
+    ans: 1, explain: '丽春红染色有条带说明转膜成功。ECL无信号最可能是抗体问题：一抗不识别或二抗种属不匹配，其次是ECL失效。' },
+  { id: 307, exp: 7, hard: true, q: '【综合】GST纯化后SDS-PAGE显示：未诱导无GST带，诱导后有GST带，但纯化泳道无条带。最可能原因？',
+    opts: ['GST未表达', 'GSH洗脱浓度太低或条件不当', 'PBS洗涤时吸走珠子', '诱导时间不够'],
+    ans: 1, explain: '诱导后有GST带说明表达成功。纯化后无条带→纯化步骤出问题。最可能是GSH浓度太低或孵育时间不够，GST未从介质上洗脱。' },
+  { id: 308, exp: 8, hard: true, q: '【应用】需分离A(120kD pI=8.0), B(45kD pI=5.2), C(20kD pI=6.8)。只用凝胶过滤层析洗脱顺序是？',
+    opts: ['C-B-A', 'A-B-C', 'B-A-C', '与分子量大小有关与pI无关'],
+    ans: 1, explain: '凝胶过滤基于分子大小排阻与pI无关。大分子不进孔隙先洗脱：A(120kD)先-B(45kD)中-C(20kD)后。' },
+  { id: 309, exp: 9, hard: true, q: '【临床】女性患者核型分析发现只有一个巴氏小体，性染色体组成最可能是？',
+    opts: ['XX(正常女性)', 'XXX', 'XO(特纳综合征)', 'XXY(克氏综合征)'],
+    ans: 3, explain: '巴氏小体数=X数-1。有1个巴氏小体→X数=2，正常女性(XX)或克氏综合征(XXY)均可能。患者为女性表型，故为XX。但XXY通常为男性表型。' },
+  { id: 310, exp: 9, hard: true, q: '【分析】小鼠骨髓染色体制备中镜检分裂相很少，最可能的原因？',
+    opts: ['低渗处理不足', '秋水仙素浓度太低或处理时间不够(应8ug/g 10~12h)', '固定液过期', '染色时间太短'],
+    ans: 1, explain: '分裂相少直接原因是秋水仙素处理不当：剂量不足(应8ug/g)或时间不够(需10~12h)。低渗不足影响染色体分散而非分裂相数量。' },
 ];
 // ====== 思维导图数据 ======
 const MIND_MAPS = {
@@ -892,7 +1051,7 @@ const MIND_MAPS = {
 // ====== 状态管理 ======
 let state = {
   mode: 'normal', currentIndex: 0, answered: false, questions: [],
-  searchKeyword: '', starFilterOnly: false,
+  searchKeyword: '', starFilterOnly: false, hardMode: false,
   wrongIds: new Set(), answeredIds: new Set(), deletedIds: new Set(), starredIds: new Set(),
   correctCount: 0, wrongCount: 0, answers: {},
 };
@@ -975,6 +1134,22 @@ function doSearch() {
   state.searchKeyword = document.getElementById('searchInput').value.trim();
   loadQuestions();
 }
+function toggleHardMode() {
+  state.hardMode = !state.hardMode;
+  var btn = document.getElementById('hardModeBtn');
+  if (state.hardMode) {
+    btn.textContent = '🔥 困难模式';
+    btn.style.background = '#e74c3c';
+    state.starFilterOnly = false;
+    var hc = ALL_QUESTIONS.filter(function(q){return q.hard;}).length;
+    alert('🔥 进入困难模式！共' + hc + '道综合应用题，需综合多个知识点作答。');
+  } else {
+    btn.textContent = '🧠 普通模式';
+    btn.style.background = '#8e44ad';
+  }
+  switchExp(currentExp);
+}
+
 function toggleStarFilter() {
   state.starFilterOnly = !state.starFilterOnly;
   document.getElementById('starFilterBtn').style.borderColor = state.starFilterOnly ? '#f39c12' : '#d0d5dd';
@@ -984,16 +1159,172 @@ function toggleStarFilter() {
 }
 
 let currentExp = 0;
+var EXP_NAMES = ['全部','实验一\nSDS-碱裂解法','实验二\n核酸鉴定&PCR','实验三\n电泳&PCR产物','实验四\nLDH酶活性','实验五\nLDH同工酶','实验六\nWestern Blot','实验七\n亲和层析&SDS-PAGE','实验八\n凝胶过滤层析','实验九\n染色体制备','📖\n思考题'];
+
+// ====== 思考题数据（来自教材）======
+var THOUGHT_QUESTIONS = [
+  { exp: 1, title: '实验一 SDS-碱裂解法提取质粒DNA', items: [
+    { q: '依据实验原理，分别说明SDS-碱裂解法实验所用试剂的作用。',
+      a: 'Buffer S1（含RNase A）：重悬菌体，提供缓冲体系，降解RNA；Buffer S2（SDS+NaOH）：裂解细胞膜，使蛋白质变性，提供强碱性使DNA变性；Buffer S3（酸性乙酸钾）：中和NaOH，使质粒DNA复性溶解，基因组DNA与蛋白质形成沉淀；Buffer W1：去除蛋白质和核酸酶；Buffer W2：去除残留盐离子；Eluent：洗脱高纯度质粒DNA。' },
+    { q: '试分析提取的质粒发生基因组DNA污染的可能原因。',
+      a: '①加入溶液II后剧烈振荡→染色体DNA断裂进入上清；②溶液II处理时间过长→基因组DNA降解成片段；③中和后离心不充分→沉淀未有效沉降；④菌体过量或裂解不充分；⑤溶液III未充分混匀→局部pH偏高。' },
+    { q: '从新冠病毒感染样本中提取病毒RNA的步骤和注意事项？',
+      a: '步骤：裂解（胍盐+EDTA+蛋白酶K）→纯化（硅胶膜离心柱法或酚-氯仿抽提）→沉淀（异丙醇+乙醇漂洗）→溶解（DEPC水）。注意事项：防止RNase污染（加β-巯基乙醇）、全程低温操作、生物安全柜内操作。' },
+  ]},
+  { exp: 3, title: '实验三 核酸的完整性及PCR产物鉴定', items: [
+    { q: '上样缓冲液的主要成分及作用？',
+      a: '①甘油/蔗糖：增加样品密度，使样品沉入点样孔底部；②Tris-HCl：提供合适的离子强度和pH环境；③EDTA：螯合二价金属离子，抑制核酸酶活性；④溴酚蓝/二甲苯青：指示电泳迁移进度。' },
+    { q: '影响电泳的因素有哪些？电压过高有什么影响？',
+      a: '①电场参数（电压、时间）；②凝胶特性（浓度、均匀性）；③缓冲液条件（pH、离子强度）；④样品特性（分子大小与构象、电荷密度、纯度）；⑤温度控制；⑥染色方法。电压过高→产热过多→凝胶变形或DNA变性→"微笑效应"。' },
+  ]},
+  { exp: 4, title: '实验四 LDH酶活性测定', items: [
+    { q: '本实验为什么分别设定标准空白和测定空白？',
+      a: '测定空白：不加NAD⁺，扣除样品本身及内源性丙酮酸等非特异性干扰在440nm的吸光度。标准空白：不加丙酮酸标准液，扣除试剂本身（2,4-二硝基苯肼等）的非特异性显色。两个空白独立校正，提高定量准确性。' },
+    { q: '本实验中为何要进行三次37℃水浴？',
+      a: '第一次（2~3min）：预温反应液至37℃；第二次（15min）：启动酶促反应生成丙酮酸；第三次（15min）：使2,4-二硝基苯肼与丙酮酸充分反应显色。' },
+    { q: '2,4-二硝基苯肼的作用是什么？',
+      a: '显色试剂。与丙酮酸反应生成丙酮酸二硝基苯腙，加NaOH后呈稳定红棕色（440nm处最大吸收），将丙酮酸转化为可用分光光度法检测的有色物质，从而间接测定LDH活性。' },
+    { q: '说明计算公式LDH(U)=(A1-A2)/(A3-A4)×200×稀释倍数中各数值项的意义？',
+      a: 'A₁：测定管吸光度；A₂：测定空白管吸光度；A₃：标准管吸光度；A₄：标准空白管吸光度。200=标准管丙酮酸含量(0.05mL×1μmol/mL)换算为100mL样品的系数。' },
+    { q: '样品稀释对酶活性测定有何影响？',
+      a: '稀释倍数过大→丙酮酸生成太少→误差大、结果偏低。稀释倍数过小→酶量过多→底物快速耗尽→酶活假性偏低。需找到合适的稀释倍数使底物消耗≤5%。' },
+    { q: '如果某一种酶的催化作用需要NADH作为辅酶，能否设计一种实验方法测定该酶的活性？',
+      a: '可以。NADH在340nm有特征吸收峰而NAD⁺无吸收。可用连续监测法：加入过量底物和NADH，连续监测340nm吸光度下降速率(ΔA/min)，根据朗伯-比尔定律计算NADH消耗速率，得到酶活性单位。也可用不连续法：终止反应后测定340nm吸光度。' },
+    { q: '一位有肝病的患者血清AST检测结果异常偏低，可能原因是什么？',
+      a: '①pH偏离最适或温度过高致酶变性；②样品稀释倍数不足导致底物在反应初期被快速耗尽，进入平台期而非线性期；③样品未及时分离血清或反复冻融。' },
+  ]},
+  { exp: 5, title: '实验五 LDH同工酶谱分析', items: [
+    { q: '在非变性PAGE中，LDH同工酶的迁移速率主要由哪些因素决定？为什么LDH1的迁移速率通常快于LDH5？',
+      a: '决定因素（按重要性）：①净电荷（最主要）→pH8.3缓冲液中酸性氨基酸残基电离带负电；②分子大小；③分子形状。LDH1(H₄)比LDH5(M₄)含更多酸性氨基酸残基（天冬氨酸、谷氨酸），在pH8.3下带更多负电荷，迁移更快。LDH1→LDH5迁移速率依次递减。' },
+    { q: '实验中为何要在非变性条件下进行？如果误加了SDS会有什么影响？',
+      a: '非变性条件保持LDH四聚体天然构象和催化活性，能通过底物显色被检测到，并保留电荷差异用于分离。误加SDS：①SDS消除同工酶间电荷差异，而五种同工酶分子量相近(140kDa)，无法分离；②SDS使酶变性失活，无法进行后续酶促显色。' },
+    { q: '非变性上样缓冲液中甘油和溴酚蓝的作用分别是什么？',
+      a: '甘油：增加样品密度，使样品沉入点样孔底部避免扩散。溴酚蓝：作为电泳指示剂，实时监控电泳进程，其迁移速率快于LDH。' },
+    { q: '若染色后条带模糊、弥散，可能是由哪些操作失误导致的？',
+      a: '制胶：凝胶聚合不均匀/有气泡/浓度不匹配；样品：盐离子浓度过高/反复冻融降解/上样量过大；电泳：电压过高产热/电泳时间过长；染色：时间过长/光照下进行。' },
+    { q: '若某组织样品未出现预期条带，试分析可能的原因。',
+      a: '样品处理：匀浆不充分/LDH失活/蛋白浓度过低/离心不充分；电泳条件：电压过低/时间不足/正负极接反/胶浓度过高；显色系统：漏加关键成分/染色液过期/未避光。' },
+  ]},
+  { exp: 6, title: '实验六 Western Blot 免疫印迹', items: [
+    { q: 'Western Blot为什么通常使用一抗和二抗两步抗体孵育？',
+      a: '①放大信号：一个一抗可结合多个二抗，二抗偶联HRP酶，级联放大信号，提高灵敏度；②降低非特异性背景：二抗只识别一抗Fc段，漂洗后去除游离二抗；③通用性：一种二抗可适配多种同种属一抗；④成本效益：直接标记一抗成本高，二抗为通用试剂。' },
+    { q: '如果观察到高背景信号，可能的原因是什么？如何解决？',
+      a: '①封闭不充分→使用5%脱脂奶粉/BSA，延长封闭时间；②抗体浓度过高→降低抗体稀释比；③漂洗不彻底→增加漂洗次数（4×10~15min）；④膜处理不当→戴手套操作，转膜赶气泡；⑤显色过度→控制曝光时间。' },
+    { q: '如果抗原分子量是预估的两倍，可能原因是什么？',
+      a: '最常见原因是蛋白质形成了二聚体。样品处理时β-巯基乙醇/DTT添加不足或煮沸时间不够，二硫键未被完全还原，蛋白以二聚体形式存在。也可能因过度糖基化、融合蛋白标签二聚化等。' },
+  ]},
+  { exp: 7, title: '实验七 亲和层析纯化GST融合蛋白', items: [
+    { q: '依据蛋白质的性质，常用哪些技术分离纯化蛋白质？',
+      a: '按分子大小：透析、超滤、密度梯度离心、凝胶过滤层析。按溶解度：等电点沉淀、盐析、有机溶剂沉淀。按电荷：电泳、离子交换层析。按吸附性质：吸附层析。按亲和力：亲和层析。' },
+    { q: '在GST融合蛋白的亲和层析过程中，如何优化洗脱条件以提高纯化效率？',
+      a: '①提高GSH浓度增强竞争性结合；②适当延长洗脱液与亲和介质的孵育时间；③微调洗脱液pH与离子强度，促进GST与配体解离；④降低流速使竞争更充分；⑤温度：4℃适合热不稳定蛋白，室温提高扩散效率；⑥加入DTT抗氧化、蛋白酶抑制剂防止降解。' },
+    { q: '在SDS-PAGE中，当分离胶加完后，需在其上加一层水，为什么？',
+      a: '加水封胶可隔绝空气（氧气抑制凝胶聚合），同时使分离胶上沿保持平直，保证电泳时蛋白条带整齐、分离效果均匀。' },
+    { q: '凝胶过滤层析和离子交换层析的两相各有何特征？',
+      a: '凝胶过滤层析：固定相为多孔网状凝胶（无电荷、无吸附性），流动相为中性缓冲液，依据分子大小分离。离子交换层析：固定相为带固定电荷的离子交换剂（带电树脂），流动相为特定pH/离子强度的缓冲液，依据分子电荷差异分离。' },
+  ]},
+  { exp: 8, title: '实验八 凝胶过滤层析-牛血清白蛋白脱盐实验', items: [
+    { q: '一种溶液中可能含有A蛋白(pI=4.3, MW=58kD)和B蛋白(pI=6.2, MW=29kD)时，是否可采用层析方法进行分离？请说明原因。',
+      a: '可以。有两种方法：①离子交换层析：选择pH5.5缓冲液，A蛋白(pI=4.3)带负电可结合阴离子交换柱，B蛋白(pI=6.2)带正电不结合直接流出，再提高盐浓度洗脱A蛋白。②凝胶过滤层析：A蛋白(58kD)先洗脱，B蛋白(29kD)后洗脱，选择合适的凝胶介质（如Sephadex G-75）可有效分离。' },
+    { q: '分析BSA脱盐实验结果图。',
+      a: '蓝色曲线(A₂₈₀)代表BSA蛋白峰：BSA(66kDa)在排阻极限以上，先被洗脱，峰顶约在18~22秒。红色曲线(电导率)代表NaCl盐峰：小分子NaCl自由进入凝胶孔隙，后被洗脱，峰顶约在35~38秒。两峰完全分离说明脱盐成功。' },
+  ]},
+  { exp: 9, title: '实验九 染色体制备与观察', items: [
+    { q: '简述制备小鼠骨髓细胞染色体关键步骤及主要试剂的作用。',
+      a: '关键步骤：低渗处理（0.075M KCl，37℃，30min）。主要试剂：秋水仙素（与微管蛋白结合，阻滞细胞于中期）；生理盐水（冲洗骨髓、维持渗透压）；低渗液（膨胀细胞，分散染色体）；固定液甲醇:冰醋酸=3:1（固定形态，防止结构破坏）；Giemsa染液（特异性染色染色体）。' },
+    { q: '绘图显示油镜观察到的小鼠骨髓细胞分裂中期染色体图像，分析实验成败的关键。',
+      a: '油镜下可见40条端着丝粒染色体呈U/V型，排列分散无明显重叠。成败关键：①秋水仙素浓度和时间（8μg/g，10~12h）；②低渗处理（37℃30min，不足则重叠，过度则破裂）；③固定液新鲜配制；④滴片高度30cm，载玻片预冷。' },
+    { q: '绘图显示油镜视野下巴氏小体的分布及结构特点。',
+      a: '口腔黏膜上皮细胞核内，核膜内侧边缘可见1个直径约1μm的致密深染小体（巴氏小体），呈三角形/馒头形/椭圆形，染色显著深于周围常染色质。核仁位于核中央，染色浅，易与巴氏小体区分。' },
+  ]},
+];
+
+// ====== 渲染思考题 ======
+function renderThoughtQuestions(expFilter) {
+  var area = document.getElementById('questionArea');
+  var nav = document.querySelector('.nav-btns'); if(nav) nav.remove();
+  document.getElementById('completePage').classList.remove('show');
+  document.getElementById('mindMapArea').style.display = 'none';
+
+  var data = expFilter > 0 ? THOUGHT_QUESTIONS.filter(function(t){ return t.exp === expFilter; }) : THOUGHT_QUESTIONS;
+  var html = '<div style="margin-bottom:20px;"><h2 style="color:#1a3c6e;font-size:20px;margin-bottom:16px;">📖 教材思考题</h2>';
+  html += '<p style="color:#888;font-size:13px;margin-bottom:16px;">先尝试作答，再展开答案对照。</p>';
+  html += '<div style="text-align:right;margin-bottom:12px;"><button class="btn btn-outline" onclick="tqToggleAll()" style="font-size:12px;padding:4px 14px;">📂 展开全部</button> <button class="btn btn-outline" onclick="tqCollapseAll()" style="font-size:12px;padding:4px 14px;">📁 收起全部</button></div>';
+  data.forEach(function(exp){
+    html += '<div class="tq-section"><div class="tq-exp-title">' + exp.title + '</div>';
+    exp.items.forEach(function(item, idx){
+      var hasBrief = (item.b !== undefined && item.b.length > 0);
+      html += '<div class="tq-card"><div class="tq-num">Q' + (idx+1) + '</div>';
+      html += '<div class="tq-q">' + item.q + '</div>';
+      // Toggle controls
+      html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">';
+      html += '<span class="tq-ans-toggle" onclick="toggleTQAnswer(this)">📖 显示答案</span>';
+      if (hasBrief) {
+        html += '<span class="tq-ans-toggle" onclick="tqToggleMode(this)" data-mode="brief">⚡ 速记版</span>';
+      }
+      html += '</div>';
+      // Answer area (hidden by default)
+      html += '<div class="tq-a" style="display:none;">';
+      html += '<div class="tq-a-detailed"><strong>📝 详细答案：</strong>' + item.a + '</div>';
+      if (hasBrief) {
+        html += '<div class="tq-a-brief" style="display:none;margin-top:6px;padding:8px 10px;background:#fefce8;border-left:3px solid #eab308;border-radius:6px;"><strong>⚡ 速记版：</strong>' + item.b + '</div>';
+      }
+      html += '</div></div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  area.innerHTML = html;
+  area.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function toggleTQAnswer(btn) {
+  var answerDiv = btn.parentElement.nextElementSibling;
+  if (answerDiv.style.display === 'none') {
+    answerDiv.style.display = 'block';
+    btn.textContent = '🙈 收起答案';
+  } else {
+    answerDiv.style.display = 'none';
+    btn.textContent = '📖 显示答案';
+  }
+}
+
+function tqToggleMode(btn) {
+  var answerDiv = btn.parentElement.nextElementSibling;
+  var detailed = answerDiv.querySelector('.tq-a-detailed');
+  var brief = answerDiv.querySelector('.tq-a-brief');
+  if (!brief || !detailed) return;
+  if (btn.getAttribute('data-mode') === 'brief') {
+    detailed.style.display = 'none';
+    brief.style.display = 'block';
+    btn.textContent = '📝 详细版';
+    btn.setAttribute('data-mode', 'detailed');
+  } else {
+    detailed.style.display = 'block';
+    brief.style.display = 'none';
+    btn.textContent = '⚡ 速记版';
+    btn.setAttribute('data-mode', 'brief');
+  }
+}
+
+function tqToggleAll() {
+  document.querySelectorAll('.tq-a').forEach(function(div){ div.style.display = 'block'; });
+  document.querySelectorAll('.tq-ans-toggle').forEach(function(btn){ if(btn.textContent.indexOf('显示')>=0) btn.textContent = '🙈 收起答案'; });
+}
+
+function tqCollapseAll() {
+  document.querySelectorAll('.tq-a').forEach(function(div){ div.style.display = 'none'; });
+  document.querySelectorAll('.tq-ans-toggle').forEach(function(btn){ if(btn.textContent.indexOf('收起')>=0) btn.textContent = '📖 显示答案'; });
+}
 
 function init() {
   loadState();
-  const expNames = ['全部','实验一\nSDS-碱裂解法','实验二\n核酸鉴定&PCR','实验三\n电泳&PCR产物','实验四\nLDH酶活性','实验五\nLDH同工酶','实验六\nWestern Blot','实验七\n亲和层析&SDS-PAGE','实验八\n凝胶过滤层析','实验九\n染色体制备'];
-  renderExpTabs(expNames);
+  renderExpTabs(EXP_NAMES);
   switchExp(0);
 }
 
 function renderExpTabs(expNames) {
-  if (!expNames) expNames = ['全部','实验一\nSDS-碱裂解法','实验二\n核酸鉴定&PCR','实验三\n电泳&PCR产物','实验四\nLDH酶活性','实验五\nLDH同工酶','实验六\nWestern Blot','实验七\n亲和层析&SDS-PAGE','实验八\n凝胶过滤层析','实验九\n染色体制备'];
+  if (!expNames) expNames = EXP_NAMES;
   const expTabs = document.getElementById('expTabs');
   if (!expTabs) return;
   expTabs.innerHTML = '';
@@ -1007,7 +1338,8 @@ function renderExpTabs(expNames) {
     var statStr = answered > 0 ? ' ' + correct+'/'+answered : '';
     var pctColor = pct >= 80 ? '#27ae60' : (pct >= 50 ? '#f39c12' : '#e74c3c');
     var pctHtml = pct >= 0 ? ' <span style="color:'+pctColor+';font-weight:700;">'+pct+'%</span>' : '';
-    tab.innerHTML = name.replace('\n','<br>') + ' <span class="q-count">(' + qs.length + '题' + statStr + pctHtml + ')</span>';
+    var hc = qs.filter(function(q){return q.hard;}).length;
+    tab.innerHTML = name.replace('\n','<br>') + ' <span class="q-count">(' + qs.length + '题' + statStr + pctHtml + ')</span>' + (hc>0?' <span style="font-size:10px;background:#fde68a;color:#92400e;padding:1px 8px;border-radius:8px;">\u2605'+hc+'</span>':'');
     tab.onclick = (function(idx){ return function(){ switchExp(idx); }; })(i);
     expTabs.appendChild(tab);
   });
@@ -1041,6 +1373,10 @@ function switchExp(exp) {
   currentExp = exp;
   document.querySelectorAll('.exp-tab').forEach(function(t,i){t.classList.toggle('active',i===exp);});
   if (state.mode !== 'wrong-retry') state.mode = 'normal';
+  if (exp === 10) {
+    renderThoughtQuestions(0);
+    return;
+  }
   renderMindMap(exp);
   loadQuestions();
 }
@@ -1054,6 +1390,8 @@ function loadQuestions() {
     pool = getQuestionsByExp(currentExp);
     if (pool.length === 0) { alert('当前实验题目已全部删除！请恢复已删题目。'); return; }
   }
+  // 困难模式过滤
+  if (state.hardMode) pool = pool.filter(function(q){ return q.hard === true; });
   // 搜索关键词过滤
   if (state.searchKeyword) {
     var kw = state.searchKeyword.toLowerCase();
